@@ -31,7 +31,7 @@ namespace milecsa{
         /**
          * Request builder defines preperaing transactions body protocol.
          * Creates a request body, computes transaction signadure and digest.
-         * @tparam T
+         * @tparam T basic serializer class, by default is nlohmann::json
          */
         template<typename T>
         class Request {
@@ -46,10 +46,10 @@ namespace milecsa{
             /**
              * Request builder constructor.
              *
-             * @param keyPair
-             * @param blockId
-             * @param transactionId
-             * @param assetCode
+             * @param keyPair - wallet keys pair
+             * @param blockId - current block id
+             * @param transactionId - user defined transaction id
+             * @param assetCode - asset code
              */
             Request(const milecsa::keys::Pair &keyPair,
                     const uint256_t blockId,
@@ -98,8 +98,8 @@ namespace milecsa{
              *
              * Setup request body in inheritance classes.
              *
-             * @param calculatorClosure
-             * @param paramsClosure
+             * @param calculatorClosure - ...
+             * @param paramsClosure - ...
              */
             void setup(const std::string &transactionName, const CalculatorClosure &calculatorClosure, const ParamsClosure &paramsClosure) {
 
@@ -130,16 +130,29 @@ namespace milecsa{
                 paramsClosure(parameters_, keyPair_.get_public_key().encode());
             }
 
+            
+            /**
+             * Copy constructor
+             *
+             * @param request - copied request
+             */
+            Request(const Request& request):
+            parameters_(request.parameters_),keyPair_(request.keyPair_),
+            signer_(request.signer_),blockId_(request.blockId_),transactionId_(request.transactionId_),
+            assetCode_(request.assetCode_),digest_(request.digest_),signature_(request.signature_),
+            digestCalculator_(request.digestCalculator_){}
 
         private:
+            Request(){};
+
             T parameters_;
 
-            const keys::Pair keyPair_;
-            const keys::Signer signer_;
+            keys::Pair keyPair_;
+            keys::Signer signer_;
 
-            const uint256_t blockId_;
-            const uint64_t  transactionId_;
-            const unsigned short  assetCode_;
+            uint256_t blockId_;
+            uint64_t  transactionId_;
+            unsigned short  assetCode_;
 
             ::Digest digest_;
             ::Signature signature_;

@@ -47,11 +47,30 @@ class ViewController: UIViewController {
 
             Swift.print(" pks with private key phrase4 = \(pks_sph4, pks_sph3==pks_sph4) ")
 
-//            Swift.print("Wallet       : ", try MileCsa.createTransfer(pks,
-//                                                                        destPublicKey: "WTF!KEY",
-//                                                                        transactionId: 0,
-//                                                                        assets: 0,
-//                                                                        amount: "0"))
+            let dest = pks_sph1.publicKey
+            let t = try MileCsaTransaction.transfer(pks,
+                                                    destPublicKey: dest,
+                                                    blockId: "0",
+                                                    transactionId: 0,
+                                                    assetCode: 0,
+                                                    amount: "1.00",
+                                                    description: nil,
+                                                    fee: nil) as! [String: Any]
+            
+            let e = try MileCsaTransaction.emission(pks,
+                                                    destPublicKey: dest,
+                                                    blockId: "0",
+                                                    transactionId: 0,
+                                                    assetCode: 0,
+                                                    amount: "1.00",
+                                                    description: nil,
+                                                    fee: nil) as! [String: Any]
+            
+            Swift.print("Wallet transfer: ", t)
+            
+            Swift.print("Wallet emission: ", e)
+
+
         }
         catch let error {
             Swift.print("Error: \(error)")

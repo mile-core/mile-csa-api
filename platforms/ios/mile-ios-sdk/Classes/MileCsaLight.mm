@@ -12,7 +12,7 @@
 
 using result = milecsa::result;
 
-inline NSError *error2NSError(std::string &errorMessage, milecsa::result code, NSString *description){
+inline NSError *error2NSError(const std::string &errorMessage, milecsa::result code, NSString *description){
     if (!errorMessage.empty()) {
         NSDictionary *userInfo = @{
                                    NSLocalizedDescriptionKey: NSLocalizedString([NSString stringWithUTF8String:errorMessage.c_str()], nil),
@@ -27,12 +27,16 @@ inline NSError *error2NSError(std::string &errorMessage, milecsa::result code, N
 
 
 @interface MileCsaKeys()
-//@property(readonly) milecsa::keys::pair *keysPair;
+- (const milecsa::keys::Pair&) get_pair;
 @end
 
 @implementation MileCsaKeys
 {
     milecsa::keys::Pair _keysPair;
+}
+
+- (const milecsa::keys::Pair&)get_pair{
+    return _keysPair;
 }
 
 - (NSString *) publicKey {
@@ -44,21 +48,15 @@ inline NSError *error2NSError(std::string &errorMessage, milecsa::result code, N
 }
 
 + (BOOL) validate:(MileCsaKeys *)keys {
-    return milecsa::keys::Pair::Validate(
-                                         keys->_keysPair,
-                                         [](milecsa::result code,std::string error) {});
+    return milecsa::keys::Pair::Validate(keys->_keysPair);
 }
 
 + (BOOL) validatePublic:(NSString *)key {
-    return milecsa::keys::Pair::ValidatePublicKey(
-                                                  [key UTF8String],
-                                                  [](milecsa::result code,std::string error) {});
+    return milecsa::keys::Pair::ValidatePublicKey([key UTF8String]);
 }
 
 + (BOOL) validatePrivate:(NSString *)key {
-    return milecsa::keys::Pair::ValidatePrivateKey(
-                                                   [key UTF8String],
-                                                   [](milecsa::result code,std::string error) {});
+    return milecsa::keys::Pair::ValidatePrivateKey([key UTF8String]);
 }
 
 - (nonnull instancetype) initWith:(const milecsa::keys::Pair &)pair {
@@ -68,10 +66,6 @@ inline NSError *error2NSError(std::string &errorMessage, milecsa::result code, N
     }
     return self;
 }
-
-//- (milecsa::keys::pair*) keysPair {
-//    return &_keysPair;
-//}
 
 - (BOOL) isEqual:(id)object {
     return [self.privateKey isEqual:[(MileCsaKeys*)object privateKey]];
@@ -86,7 +80,7 @@ inline NSError *error2NSError(std::string &errorMessage, milecsa::result code, N
     if (auto pair =
         milecsa::keys::Pair::Random([error](
                                             milecsa::result code,
-                                            std::string result) mutable -> void {
+                                            const std::string &result) mutable -> void {
         *error = error2NSError(result, code, @"Key generator error");
     }))
     {
@@ -102,7 +96,7 @@ inline NSError *error2NSError(std::string &errorMessage, milecsa::result code, N
     if (auto pair =
         milecsa::keys::Pair::WithSecret([phrase UTF8String], [error](
                                                                      milecsa::result code,
-                                                                     std::string result) mutable -> void {
+                                                                     const std::string &result) mutable -> void {
         *error = error2NSError(result, code, @"Key generator error");
     }))
     {
@@ -118,7 +112,7 @@ inline NSError *error2NSError(std::string &errorMessage, milecsa::result code, N
     if (auto pair =
         milecsa::keys::Pair::FromPrivateKey([privateKey UTF8String], [error](
                                                                              milecsa::result code,
-                                                                             std::string result) mutable -> void {
+                                                                             const std::string &result) mutable -> void {
         *error = error2NSError(result, code, @"Key generator error");
     }))
     {
@@ -131,73 +125,105 @@ inline NSError *error2NSError(std::string &errorMessage, milecsa::result code, N
 }
 @end
 
-@implementation MileCsa
+@implementation MileCsaTransaction
 
-//+ (nullable NSString*) registerNode:(MileCsaKeys *)keyPair
-//                   address:(NSString *)address
-//             transactionId:(uint64_t)transactionId
-//                     error:(NSError *_Null_unspecified __autoreleasing *_Null_unspecified)error
-//{
-//    milecsa_keys_pair keys;  dumpKeys(&keys, keyPair);
-//    char *errorMessage = nullptr;
-//    char *transaction = nullptr;
-//    milecsa_result code;
-//
-//    if ( (code=milecsa_create_transaction_register_node(&keys,
-//                                         [address UTF8String],
-//                                         transactionId,
-//                                         &transaction, &errorMessage)) == PCSA_RES_OK){
-//        return string2NSString(transaction);
-//    }
-//    else {
-//        *error = error2NSError(errorMessage, code, @"Register node transaction error");
-//    }
-//    return nil;
-//}
-
-//+ (nullable NSString*) unregisterNode:(MileCsaKeys *)keyPair
-//               transactionId:(uint64_t)transactionId
-//                       error:(NSError *_Null_unspecified __autoreleasing *_Null_unspecified)error{
-//    milecsa_keys_pair keys;  dumpKeys(&keys, keyPair);
-//    char *errorMessage = nullptr;
-//    char *transaction = nullptr;
-//    milecsa_result code;
-//
-//    if((code=create_transaction_unregister_node(&keys, transactionId, &transaction, &errorMessage)) == PCSA_RES_OK) {
-//       return string2NSString(transaction);
-//    }
-//    else {
-//        *error = error2NSError(errorMessage, code, @"Unregister node transaction error");
-//    }
-//    return nil;
-//}
-
-+ (nullable NSString*) createTransfer:(MileCsaKeys *)srcKeyPair
-                        destPublicKey:(NSString *)destPublicKey
-                        transactionId:(uint64_t)transactionId
-                               assets:(unsigned short)assets
-                               amount:(NSString *)amount
-                                error:(NSError *_Null_unspecified __autoreleasing *_Null_unspecified)error{
++(nullable NSDictionary*) base_transfer:(int)type
+                            wallet_pair:(MileCsaKeys *)wallet_pair
+                          destPublicKey:(NSString *)destPublicKey
+                                blockId:(NSString *)blockId
+                          transactionId:(uint64_t)transactionId
+                              assetCode:(unsigned short)assetCode
+                                 amount:(NSString *)amount
+                            description:(NSString *)description
+                                    fee:(NSString *)fee
+                                  error:(NSError *__autoreleasing  _Null_unspecified *)error{
     
-    //milecsa::keys::pair keys;  dumpKeys(&keys, srcKeyPair);
+    auto _error = [error](milecsa::result code, std::string result) mutable -> void {
+        *error = error2NSError(result, code, @"Transfer error");
+    };
     
-    //char *errorMessage = nullptr;
-    //char *transaction = nullptr;
-    //milecsa_result code;
+    auto pair = [wallet_pair get_pair];
     
-    //    if((code=create_transaction_transfer_assets(&keys,
-    //                                          [destPublicKey UTF8String],
-    //                                          transactionId,
-    //                                          assets,
-    //                                          [amount UTF8String],
-    //                                          &transaction,
-    //                                          &errorMessage)) == PCSA_RES_OK){
-    //       return string2NSString(transaction);
-    //    }
-    //    else {
-    //        *error = error2NSError(errorMessage, code, @"Create transfer transaction error");
-    //    }
+    
+    uint256_t ui;
+    
+    if(!StringToUInt256([blockId UTF8String], ui, false)) {
+        *error = error2NSError("block could not be converted to uint256_t", milecsa::result::FAIL, @"Transfer error");
+    }
+    
+    std::string desc = description == nil ? "" : [description UTF8String];
+    std::string f    = fee == nil ? "" : [fee UTF8String];
+    
+    std::optional<milecsa::transaction::Request<nlohmann::json>> transfer;
+    
+    switch (type) {
+        case 0:
+            transfer = milecsa::transaction::Transfer<nlohmann::json>::CreateRequest(
+                                                                                     pair,
+                                                                                     [destPublicKey UTF8String],
+                                                                                     ui,
+                                                                                     transactionId,
+                                                                                     assetCode,
+                                                                                     [amount UTF8String],
+                                                                                     desc,
+                                                                                     f,
+                                                                                     _error);
+            break;
+        case 1:
+            transfer = milecsa::transaction::Emission<nlohmann::json>::CreateRequest(
+                                                                                     pair,
+                                                                                     [destPublicKey UTF8String],
+                                                                                     ui,
+                                                                                     transactionId,
+                                                                                     assetCode,
+                                                                                     [amount UTF8String],
+                                                                                     desc,
+                                                                                     f,
+                                                                                     _error);
+            break;
+        default:
+            *error = error2NSError("Unknown transaction", milecsa::result::UNKNOWN, @"Request builder error");
+            return nil;
+    }
+    
+    if(transfer){
+        if (auto trx = transfer->get_body()){
+            NSData *data = [[NSString stringWithUTF8String:trx->dump().c_str()]
+                            dataUsingEncoding:NSUTF8StringEncoding];
+            return  [NSJSONSerialization JSONObjectWithData:data
+                                                    options:kNilOptions
+                                                      error:error];
+        }
+    }
     return nil;
+}
+
+
++(nullable NSDictionary*) transfer:(MileCsaKeys *)wallet_pair
+                     destPublicKey:(NSString *)destPublicKey
+                           blockId:(NSString *)blockId
+                     transactionId:(uint64_t)transactionId
+                         assetCode:(unsigned short)assetCode
+                            amount:(NSString *)amount
+                       description:(NSString *)description
+                               fee:(NSString *)fee
+                             error:(NSError *__autoreleasing  _Null_unspecified *)error{
+    
+    return [self base_transfer: 0 wallet_pair:wallet_pair destPublicKey:destPublicKey blockId:blockId transactionId:transactionId assetCode:assetCode amount:amount description:description fee:fee error:error];
+    
+}
+
+
++(nullable NSDictionary*) emission:(MileCsaKeys *)wallet_pair
+                     destPublicKey:(NSString *)destPublicKey
+                           blockId:(NSString *)blockId
+                     transactionId:(uint64_t)transactionId
+                         assetCode:(unsigned short)assetCode
+                            amount:(NSString *)amount
+                       description:(NSString *)description
+                               fee:(NSString *)fee
+                             error:(NSError *__autoreleasing  _Null_unspecified *)error{
+    return [self base_transfer: 1 wallet_pair:wallet_pair destPublicKey:destPublicKey blockId:blockId transactionId:transactionId assetCode:assetCode amount:amount description:description fee:fee error:error];
 }
 
 @end
