@@ -8,4 +8,9 @@ end
 
 target 'MileLightTest' do
     pod 'MileCsaLight', :path => '../../../'
+    
+    #
+    # Uncomment in your app:
+    #
+    # pod 'MileCsaLight', :git => 'https://github.com/mile-core/mile-csa-api'
 end
