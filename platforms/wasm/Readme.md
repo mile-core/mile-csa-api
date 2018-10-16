@@ -1,53 +1,178 @@
-## API Example
+# MILE CSA JavaScript API
+
+## Wallet pair constructor
+
+### Error handling
 
 ```javascript
 
-
-// error message contain
-// error.what - contain string with error message
-
-var error = new Module.error()
-// container for keys pair
-var pair = new Module.pair()
-
-// generate private public key
-Module.generate_key_pair(keyPairs, error)
-// to check compare with Module.pcsa_result.PCSA_RES_OK
-// like this Module.pcsa_result.PCSA_RES_OK == Module.generate_key_pair(keyPairs, error)
-
-console.log("Private key: " + keyPairs.private_key())
-console.log("Public key : " + keyPairs.public_key())
-
-// generate private public key with phrase
-Module.generate_key_pair_with_secret_phrase(keyPairs, "my super secret phrase",error)
-
-/**
- * generate public key if you have only private.
- * @constructor
- * @param {pcsa_keys_pair} keyPairs - keys pair contain only private key.
- * @param {pcsa_error} error - error description.
- * example Module.generate_key_pair_from_private_key(keyPairs, error)
- */
-Module.generate_key_pair_from_private_key(keyPairs, error)
-
-/**
- * transfer asset transaction.
- * @constructor
- * @param {pcsa_keys_pair} keyPairs - src keys pair.
- * @param {string} publicKey - dst public key.
- * @param {string} ui - transaction id.
- * @param {number} asset - asset number from blockchain-info.
- * @param {string} amount - token amount.
- * @param {pcsa_error} error - error description.
- * @return {string} transaction - transaction string. If zero length show error	message.
- * example Module.create_transaction_transfer_assets(keyPairs, dstKeyPairs.public_key(), "2", 0, "1000", error)
- */
-
-var pair = new Module.pair()
-Module.pair_random(pair, error)
-Module.create_transaction_transfer_assets(keyPairs, dstKeyPairs.public_key(), ui, asset, amount, error))
+    /**
+    * Create an error container 
+    */
+    var error = new Module.Error()
+    
+    if (error.hasError) {
+        //
+        // Handle error
+        //
+        // console.log("Error: " + error.what);
+    }
 
 ```
+
+### Create wallet pair with random keys
+
+```javascript
+
+    /**
+    * Create a new wallet pair with random keys  
+    */
+    var pair = new Module.Pair.Random(error)
+    
+    if (error.hasError) {
+        //
+        // Handle Wallet pair generator error        
+        //
+    }
+    else {
+        // access to public key:
+        var public_key = pair.public_key
+        var private_key = pair.private_key  
+ 
+        //
+        // Process pair
+        //
+        ...                
+    }
+
+```
+
+### Create wallet pair from private key
+
+```javascript
+    var private_key = "....."
+    var pair = new Module.Pair.FromPrivateKey(private_key,error)
+    
+    if (error.hasError) {
+        //
+        // Handle Wallet pair generator error        
+        //
+    }
+    else {
+        // access to public key:
+        var public_key = pair.public_key
+        var private_key = pair.private_key  
+
+        //
+        // Process pair
+        //
+        ...                
+    }
+
+```
+
+### Keys validation
+
+**Validate public key**
+```javascript
+
+    //
+    // public key form INOPUT FROM 
+    //
+    if(!Module.Pair.ValidatePublicKey(field.public_key, error)){
+        //
+        // Handle error
+        //
+    }
+````
+
+**Validate private key**
+```javascript
+
+    //
+    // private key form INOPUT FROM 
+    //
+
+    if(!Module.Pair.ValidatePrivateKey(field.private_key, error)){
+        //
+        // Handle error
+        //
+    }
+```
+
+## Prepare transaction body to send to node
+
+### Create transaction object
+```javascript
+    var transaction = new Module.Transaction()
+```
+
+### Prepare asset transfer
+```javascript
+
+     var ret =  transaction.Transfer(
+            pair,                    // pair
+            destination.public_key,  // destination
+            "2",                     // block id
+            "0",                     // transaction id
+            0,                       // asset code
+            "1000",                  // amount
+            "memo field",            // description
+            "",                      // fee, always ""
+            error) 
+     if(ret != Module.result.OK){
+         //
+         // Handle error
+         //
+     }     
+     else {
+         //
+         // call JSON-RPC request the follow format:
+         //
+         // {
+         //      method: "send-transaction",
+         //      params: transaction.body,
+         //      id: 1,
+         //      jsonrpc: "2.0",
+         //      version: "1.0"
+         //    } 
+         //
+     }
+```
+
+### Prepare emission transaction
+```javascript
+
+     var ret =  transaction.Emission(
+            pair,                    // pair
+            destination.public_key,  // destination
+            "2",                     // block id
+            "0",                     // transaction id
+            0,                       // asset code
+            "1000",                  // amount
+            "memo field",            // description
+            "",                      // fee, always ""
+            error) 
+     if(ret != Module.result.OK){
+         //
+         // Handle error
+         //
+     }     
+     else {
+         //
+         // call JSON-RPC request the follow format:
+         //
+         // {
+         //      method: "send-transaction",
+         //      params: transaction.body,
+         //      id: 1,
+         //      jsonrpc: "2.0",
+         //      version: "1.0"
+         //    } 
+         //
+     }
+```
+
 
 ## JSON-RPC Examples
 Assuming we use `axios` package for requests we don't include `import` statement in examples
@@ -74,12 +199,12 @@ getBalance( publicKey ) {
 ### Send transaction
 ```javascript
 // transactionData created by create_transaction_transfer_assets function above
-sendTransaction( transactionData ) {
+sendTransaction( transaction_body ) {
   return axios.post(
     "https://node002.testnet.mile.global",
     {
-      method: "send-signed-transaction",
-      params: { transaction_data: transactionData },
+      method: "send-transaction",
+      params: transaction_body ,
       id: 2,
       jsonrpc: "2.0",
       version: "1.0"
@@ -95,7 +220,7 @@ getLastTransactions( publicKey, count ) {
     "https://node002.testnet.mile.global",
     {
       method: "get-wallet-transactions",
-      params: { public_key: publicKey, count },
+      params: {"public-key": publicKey, count },
       id: 3,
       jsonrpc: "2.0",
       version: "1.0"

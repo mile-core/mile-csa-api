@@ -12,9 +12,10 @@
     $ cd ./mile-csa-api; mkdir build; cd ./build 
     $ cmake ..; make -j4
 
-## Build wasm extension to use the API in a javascript code
-    $ cmake -Dwasm=True ..; make -j4
-
+## Build WASM extension to use the API in a javascript code
+    $ cmake -Dwasm=True ..; make -j4; cd platforms/wasm
+    $ cp ../../../platforms/wasm/milecsa_wasm_test.html ./
+    $ emrun --serve_root ./ --browser chrome milecsa_wasm_test.html 
 
 ## Boost updates (if it needs)
 

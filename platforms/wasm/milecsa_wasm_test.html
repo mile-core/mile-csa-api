@@ -8,7 +8,11 @@
 
         console.log("----  Pair tests  ----")
 
-        var pair = new Module.Pair.Random(error);
+        var pair = new Module.Pair.Random(error)
+
+        if (error.hasError) {
+            console.log("Error: " + error.what)
+        }
 
         console.log("Random private key: " + pair.private_key)
         console.log("Random public key : " + pair.public_key)
@@ -24,38 +28,38 @@
         console.log("FromPrivateKey public key : " + pair_from_private_key.public_key)
 
         if(!Module.Pair.Validate(pair_from_private_key, error)){
-            console.log("Pair keys NOT validated: " + error.what);
+            console.log("Pair keys NOT validated: " + error.what)
         }
         else  {
-            console.log("Pair keys validated");
+            console.log("Pair keys validated")
         }
 
         if(!Module.Pair.ValidatePublicKey(pair_from_private_key.public_key, error)){
-            console.log("Public key NOT validated: " + error.what);
+            console.log("Public key NOT validated: " + error.what)
         }
         else  {
-            console.log("Public key validated");
+            console.log("Public key validated")
         }
 
         if(!Module.Pair.ValidatePrivateKey(pair_from_private_key.private_key, error)){
             console.log("Private key NOT validated: " + error.what);
         }
         else  {
-            console.log("Private key validated");
+            console.log("Private key validated")
         }
 
         if(!Module.Pair.ValidatePublicKey('+' + pair_from_private_key.public_key, error)){
             console.log("Invalid public key NOT validated: " + error.what);
         }
         else  {
-            console.log("Public key validated");
+            console.log("Public key validated")
         }
 
         if(!Module.Pair.ValidatePrivateKey('--', error)){
             console.log("Imvalid private key NOT validated: " + error.what);
         }
         else  {
-            console.log("Private key validated");
+            console.log("Private key validated")
         }
 
         console.log("---- Transactions tests ----")
@@ -80,7 +84,7 @@
 
         console.log("Transaction transfer asset: " + (ret == Module.result.OK))
 
-        console.log("Transaction transfer body: " + transaction.body);
+        console.log("Transaction transfer body: " + transaction.body)
 
         console.log("-------")
 
@@ -97,7 +101,7 @@
 
         console.log("Transaction emission: " + ret)
 
-        console.log("Transaction emission body: " + transaction.body);
+        console.log("Transaction emission body: " + transaction.body)
 
     };
 </script>
