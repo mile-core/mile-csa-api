@@ -13,21 +13,15 @@
         console.log("Random private key: " + pair.private_key)
         console.log("Random public key : " + pair.public_key)
 
-        console.log("-------")
-
         var pair_with_secret = new Module.Pair.WithSecret("some secret phrase!", error);
 
         console.log("FromPrivateKey private key: " + pair_with_secret.private_key)
         console.log("FromPrivateKey public key : " + pair_with_secret.public_key)
 
-        console.log("-------")
-
         var pair_from_private_key = new Module.Pair.FromPrivateKey(pair_with_secret.private_key, error);
 
         console.log("FromPrivateKey private key: " + pair_from_private_key.private_key)
         console.log("FromPrivateKey public key : " + pair_from_private_key.public_key)
-
-        console.log("-------")
 
         if(!Module.Pair.Validate(pair_from_private_key, error)){
             console.log("Pair keys NOT validated: " + error.what);
@@ -36,16 +30,12 @@
             console.log("Pair keys validated");
         }
 
-        console.log("-------")
-
         if(!Module.Pair.ValidatePublicKey(pair_from_private_key.public_key, error)){
             console.log("Public key NOT validated: " + error.what);
         }
         else  {
             console.log("Public key validated");
         }
-
-        console.log("-------")
 
         if(!Module.Pair.ValidatePrivateKey(pair_from_private_key.private_key, error)){
             console.log("Private key NOT validated: " + error.what);
@@ -54,8 +44,6 @@
             console.log("Private key validated");
         }
 
-        console.log("-------")
-
         if(!Module.Pair.ValidatePublicKey('+' + pair_from_private_key.public_key, error)){
             console.log("Invalid public key NOT validated: " + error.what);
         }
@@ -63,16 +51,12 @@
             console.log("Public key validated");
         }
 
-        console.log("-------")
-
         if(!Module.Pair.ValidatePrivateKey('--', error)){
             console.log("Imvalid private key NOT validated: " + error.what);
         }
         else  {
             console.log("Private key validated");
         }
-
-        console.log("-------")
 
         console.log("---- Transactions tests ----")
 
