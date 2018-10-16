@@ -4,13 +4,16 @@
 1. c++17
 1. cmake
 1. boost multiprecision installed includes (>=1.66, exclude 1.68!)
-1. https://webassembly.org
+1. [Wasm compiler](https://webassembly.org): [emscripten](http://kripken.github.io/emscripten-site/)
 
 
 ## Build
-1. git clone https://github.com/mile-core/mile-csa-api
-1. cd ./mile-csa-api; mkdir build; cd ./build 
-1. cmake ..; make -j4
+    $ git clone https://github.com/mile-core/mile-csa-api
+    $ cd ./mile-csa-api; mkdir build; cd ./build 
+    $ cmake ..; make -j4
+
+## Build wasm extension to use the API in a javascript code
+    $ cmake -Dwasm=True ..; make -j4
 
 
 ## Boost updates (if it needs)
