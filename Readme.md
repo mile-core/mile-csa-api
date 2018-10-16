@@ -11,6 +11,7 @@
     $ git clone https://github.com/mile-core/mile-csa-api
     $ cd ./mile-csa-api; mkdir build; cd ./build 
     $ cmake ..; make -j4
+    $ make test
 
 ## Build WASM extension to use the API in a javascript code
     $ cmake -Dwasm=True ..; make -j4; cd platforms/wasm
