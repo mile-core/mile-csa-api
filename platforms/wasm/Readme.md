@@ -77,7 +77,7 @@
 ```javascript
 
     //
-    // public key form INOPUT FROM 
+    // public key form INPUT FROM 
     //
     if(!Module.Pair.ValidatePublicKey(field.public_key, error)){
         //
@@ -90,7 +90,7 @@
 ```javascript
 
     //
-    // private key form INOPUT FROM 
+    // private key form INPUT FROM 
     //
 
     if(!Module.Pair.ValidatePrivateKey(field.private_key, error)){
