@@ -13,9 +13,12 @@ public:
     std::string what() const {
         return errorMessage;
     }
+    bool hasError() const {
+        return !errorMessage.empty();
+    }
 };
 
-struct transaction final{
+struct Transaction final{
 public:
     std::string t_body;
     std::string t_digest;
@@ -41,78 +44,125 @@ std::string getPublicKey(const Pair& p) {
 
 
 EMSCRIPTEN_BINDINGS(mile) {
-        function("pair_random", optional_override([](Pair& p, error& error_) {
-            return milecsa::keys::generate(p,error_.errorMessage);
-        }));
 
-        function("pair_from_private_key", optional_override([](Pair& p,  const std::string& private_key,  error& error_){
-            return milecsa::keys::generate_from_private_key(p,private_key,error_.errorMessage);
-        }));
+        class_<milecsa::keys::Pair>("Pair")
+        .constructor<>()
 
-        function("pair_with_secret_phrase", optional_override([](Pair& p,  const std::string& phrase, error& error_) {
-            return  milecsa::keys::generate_with_secret(p,phrase,error_.errorMessage);
-        }));
+        .property("private_key", getPrivateKey, setPrivateKey)
+        .property("public_key", getPublicKey)
 
-        function("pair_validate", optional_override([](Pair& p, error& error_) {
-            return milecsa::keys::validate(p,error_.errorMessage);
-        }));
+        .class_function("Random", optional_override([](error &error_) {
+            error_.errorMessage = "";
+            Pair *ptr = new Pair();
+            if(milecsa::keys::generate(*ptr,error_.errorMessage)!=milecsa::result::OK){
+                delete ptr;
+                ptr = nullptr;
+                return ptr;
+            }
+            return ptr;
+        }),allow_raw_pointers())
 
-        function("pair_validate_public_key", optional_override([](const std::string& public_key,  error& error_){
-            return milecsa::keys::validate_public_key(public_key,error_.errorMessage);
-        }));
+        .class_function("WithSecret", optional_override([](const std::string &phrase, error &error_) {
+            error_.errorMessage = "";
+            Pair *ptr = new Pair();
+            if(milecsa::keys::generate_with_secret(*ptr, phrase, error_.errorMessage)!=milecsa::result::OK){
+                delete ptr;
+                ptr = nullptr;
+                return ptr;
+            }
+            return ptr;
+        }),allow_raw_pointers())
 
-        function("pair_validate_private_key", optional_override([](const std::string& private_key, error& error_) {
-            return  milecsa::keys::validate_private_key(private_key,error_.errorMessage);
-        }));
+        .class_function("FromPrivateKey", optional_override([](const std::string &pk, error &error_) {
+            error_.errorMessage = "";
+            Pair *ptr = new Pair();
+            if(milecsa::keys::generate_from_private_key(*ptr, pk, error_.errorMessage)!=milecsa::result::OK){
+                delete ptr;
+                ptr = nullptr;
+                return ptr;
+            }
+            return ptr;
+        }),allow_raw_pointers())
 
-        function("prepare_transfer", optional_override([](
+        .class_function("Validate", optional_override([](const Pair &p, error &error_) {
+            error_.errorMessage = "";
+            return milecsa::keys::validate(p,error_.errorMessage) == milecsa::result::OK;
+        }))
+
+        .class_function("ValidatePublicKey", optional_override([](const std::string &public_key, error &error_) {
+            error_.errorMessage = "";
+            return milecsa::keys::validate_public_key(public_key,error_.errorMessage) == milecsa::result::OK;
+        }))
+
+        .class_function("ValidatePrivateKey", optional_override([](const std::string &private_key, error &error_) {
+            error_.errorMessage = "";
+            return milecsa::keys::validate_private_key(private_key,error_.errorMessage) == milecsa::result::OK;
+        }))
+        ;
+
+        class_<error>("Error")
+        .constructor<>()
+        .property("hasError", &error::hasError)
+        .property("what", &error::what);
+
+        class_<Transaction>("Transaction")
+
+        .constructor<>()
+
+        .property("body", &Transaction::body)
+        .property("digest", &Transaction::digest)
+
+        .function("Transfer", optional_override([](
+        Transaction& transaction,
         const Pair& p,
         const std::string &dstWalletPublicKey,
-
         const std::string &blockId,
         const std::string &transactionId,
         unsigned short asset,
         const std::string &amount,
         const std::string &description,
         const std::string &fee,
-        transaction &transaction,
         error& error_) {
+            error_.errorMessage = "";
 
             uint256_t bid;
             uint64_t tid;
             StringToUInt256(blockId, bid, false);
             StringToUInt64(transactionId, tid, false);
+
+            error_.errorMessage = "";
 
             return  milecsa::transaction::prepare_transfer(p,
-                                                    dstWalletPublicKey,
-                                                    bid,
-                                                    tid,
-                                                    asset,
-                                                    amount,
-                                                    description,
-                                                    fee,
-                                                    transaction.t_body,
-                                                    transaction.t_digest,
-                                                    error_.errorMessage);
-        }));
-
-        function("prepare_emission", optional_override([](
+                                                           dstWalletPublicKey,
+                                                           bid,
+                                                           tid,
+                                                           asset,
+                                                           amount,
+                                                           description,
+                                                           fee,
+                                                           transaction.t_body,
+                                                           transaction.t_digest,
+                                                           error_.errorMessage);
+        }))
+        .function("Emission", optional_override([](
+        Transaction& transaction,
         const Pair& p,
         const std::string &dstWalletPublicKey,
-
         const std::string &blockId,
         const std::string &transactionId,
         unsigned short asset,
         const std::string &amount,
         const std::string &description,
         const std::string &fee,
-        transaction &transaction,
         error& error_) {
+            error_.errorMessage = "";
 
             uint256_t bid;
             uint64_t tid;
             StringToUInt256(blockId, bid, false);
             StringToUInt64(transactionId, tid, false);
+
+            error_.errorMessage = "";
 
             return  milecsa::transaction::prepare_emission(p,
                                                            dstWalletPublicKey,
@@ -127,22 +177,6 @@ EMSCRIPTEN_BINDINGS(mile) {
                                                            error_.errorMessage);
         }));
 
-        class_<milecsa::keys::Pair>("Pair")
-        .constructor<>()
-        .class_function("Random", &milecsa::keys::Pair::Random)
-        .class_function("FromPrivateKey", &milecsa::keys::Pair::FromPrivateKey)
-        .class_function("WithSecret", &milecsa::keys::Pair::WithSecret)
-        .property("private_key", getPrivateKey, setPrivateKey)
-        .property("public_key", getPublicKey);
-
-        class_<error>("error")
-        .constructor<>()
-        .property("what", &error::what);
-
-        class_<transaction>("transaction")
-        .constructor<>()
-        .property("body", &transaction::body)
-        .property("digest", &transaction::digest);
 
         enum_<milecsa::result>("result")
         .value("UNKNOWN", milecsa::result::UNKNOWN)

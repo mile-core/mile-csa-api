@@ -80,7 +80,7 @@ list(APPEND WASM_SOURCES
 
 add_executable(${WASM} ${WASM_SOURCES})
 
-set_target_properties(${WASM} PROPERTIES LINK_FLAGS "-O3 -Oz --llvm-lto 1 -std=c++1z -s DEMANGLE_SUPPORT=1 -s SAFE_HEAP=1 -s WASM=1  --bind ")
+set_target_properties(${WASM} PROPERTIES LINK_FLAGS "-O3 -Oz --llvm-lto 1 -std=c++1z -s DEMANGLE_SUPPORT=1 -s SAFE_HEAP=1 -s WASM=1 -s RESERVED_FUNCTION_POINTERS=1 --bind ")
 
 target_link_libraries (${WASM}  ${Boost_LIBRARIES})
 
