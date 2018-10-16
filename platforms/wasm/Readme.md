@@ -1,15 +1,14 @@
 ## API Example
 
 ```javascript
-// enable debug error message
-Module.pcsa_pdbg_set_groups("all")
+
 
 // error message contain
 // error.what - contain string with error message
 
-var error = new Module.pcsa_error()
+var error = new Module.error()
 // container for keys pair
-var keyPairs = new Module.pcsa_keys_pair()
+var pair = new Module.pair()
 
 // generate private public key
 Module.generate_key_pair(keyPairs, error)
@@ -44,8 +43,8 @@ Module.generate_key_pair_from_private_key(keyPairs, error)
  * example Module.create_transaction_transfer_assets(keyPairs, dstKeyPairs.public_key(), "2", 0, "1000", error)
  */
 
-var dstKeyPairs = new Module.pcsa_keys_pair()
-Module.generate_key_pair(dstKeyPairs, error)
+var pair = new Module.pair()
+Module.pair_random(pair, error)
 Module.create_transaction_transfer_assets(keyPairs, dstKeyPairs.public_key(), ui, asset, amount, error))
 
 ```

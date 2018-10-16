@@ -48,8 +48,8 @@ include_directories (
         ../../include
         ../../vendor/crypto
         ../../vendor/ed25519/src
+        ../../vendor/nlohmann
 )
-
 
 list(APPEND WASM_SOURCES
 
@@ -71,6 +71,9 @@ list(APPEND WASM_SOURCES
         ../../src/milecsa_pair_wrapper.cpp
         ../../src/milecsa_pair.cpp
         ../../src/milecsa_utils.cpp
+        ../../src/milecsa_crypto_types.cpp
+        ../../src/transactions_wrapper/milecsa_transfer.cpp
+        ../../src/transactions_wrapper/milecsa_emission.cpp
 
         milecsa_wasm.cpp
 )
