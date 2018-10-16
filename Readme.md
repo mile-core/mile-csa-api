@@ -18,6 +18,10 @@
     $ cp ../../../platforms/wasm/milecsa_wasm_test.html ./
     $ emrun --serve_root ./ --browser chrome milecsa_wasm_test.html 
 
+## How to use javascript MILE CSA API
+* [MILE CSA JavaScript API](https://github.com/mile-core/mile-csa-api/blob/master/platforms/wasm/Readme.md)
+* emrun --serve_root ./ --browser chrome your_app.html 
+
 ## Boost updates (if it needs)
 
     $ wget https://dl.bintray.com/boostorg/release/1.67.0/source/boost_1_67_0.tar.gz
