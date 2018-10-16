@@ -1,0 +1,108 @@
+<!doctype html>
+<html>
+<script src="milecsa.js"></script>
+<script>
+    Module['onRuntimeInitialized'] = function() {
+
+        var error = new Module.Error()
+
+        console.log("----  Pair tests  ----")
+
+        var pair = new Module.Pair.Random(error)
+
+        if (error.hasError) {
+            console.log("Error: " + error.what)
+        }
+
+        console.log("Random private key: " + pair.private_key)
+        console.log("Random public key : " + pair.public_key)
+
+        var pair_with_secret = new Module.Pair.WithSecret("some secret phrase!", error);
+
+        console.log("FromPrivateKey private key: " + pair_with_secret.private_key)
+        console.log("FromPrivateKey public key : " + pair_with_secret.public_key)
+
+        var pair_from_private_key = new Module.Pair.FromPrivateKey(pair_with_secret.private_key, error);
+
+        console.log("FromPrivateKey private key: " + pair_from_private_key.private_key)
+        console.log("FromPrivateKey public key : " + pair_from_private_key.public_key)
+
+        if(!Module.Pair.Validate(pair_from_private_key, error)){
+            console.log("Pair keys NOT validated: " + error.what)
+        }
+        else  {
+            console.log("Pair keys validated")
+        }
+
+        if(!Module.Pair.ValidatePublicKey(pair_from_private_key.public_key, error)){
+            console.log("Public key NOT validated: " + error.what)
+        }
+        else  {
+            console.log("Public key validated")
+        }
+
+        if(!Module.Pair.ValidatePrivateKey(pair_from_private_key.private_key, error)){
+            console.log("Private key NOT validated: " + error.what);
+        }
+        else  {
+            console.log("Private key validated")
+        }
+
+        if(!Module.Pair.ValidatePublicKey('+' + pair_from_private_key.public_key, error)){
+            console.log("Invalid public key NOT validated: " + error.what);
+        }
+        else  {
+            console.log("Public key validated")
+        }
+
+        if(!Module.Pair.ValidatePrivateKey('--', error)){
+            console.log("Imvalid private key NOT validated: " + error.what);
+        }
+        else  {
+            console.log("Private key validated")
+        }
+
+        console.log("---- Transactions tests ----")
+
+        var destination = Module.Pair.FromPrivateKey(pair_with_secret.private_key,error)
+
+        if (!destination) {
+            console.log("Destination pair error: " + error.what)
+        }
+
+        var transaction = new Module.Transaction()
+        var ret =  transaction.Transfer(
+            pair,                    // pair
+            destination.public_key,  // destination
+            "2",                     // block id
+            "0",                     // transaction id
+            0,                       // asset code
+            "1000",                  // amount
+            "memo field",            // description
+            "",                      // fee, always ""
+            error)                   // error
+
+        console.log("Transaction transfer asset: " + (ret == Module.result.OK))
+
+        console.log("Transaction transfer body: " + transaction.body)
+
+        console.log("-------")
+
+        ret =  transaction.Emission(
+            pair,                    // pair
+            destination.public_key,  // destination
+            "2",                     // block id
+            "0",                     // transaction id
+            0,                       // asset code
+            "1000",                  // amount
+            "memo field",            // description
+            "",                      // fee, always ""
+            error)
+
+        console.log("Transaction emission: " + ret)
+
+        console.log("Transaction emission body: " + transaction.body)
+
+    };
+</script>
+</html>

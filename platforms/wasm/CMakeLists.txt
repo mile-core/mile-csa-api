@@ -48,8 +48,8 @@ include_directories (
         ../../include
         ../../vendor/crypto
         ../../vendor/ed25519/src
+        ../../vendor/nlohmann
 )
-
 
 list(APPEND WASM_SOURCES
 
@@ -71,13 +71,16 @@ list(APPEND WASM_SOURCES
         ../../src/milecsa_pair_wrapper.cpp
         ../../src/milecsa_pair.cpp
         ../../src/milecsa_utils.cpp
+        ../../src/milecsa_crypto_types.cpp
+        ../../src/transactions_wrapper/milecsa_transfer.cpp
+        ../../src/transactions_wrapper/milecsa_emission.cpp
 
         milecsa_wasm.cpp
 )
 
 add_executable(${WASM} ${WASM_SOURCES})
 
-set_target_properties(${WASM} PROPERTIES LINK_FLAGS "-O3 -Oz --llvm-lto 1 -std=c++1z -s DEMANGLE_SUPPORT=1 -s SAFE_HEAP=1 -s WASM=1  --bind ")
+set_target_properties(${WASM} PROPERTIES LINK_FLAGS "-O3 -Oz --llvm-lto 1 -std=c++1z -s DEMANGLE_SUPPORT=1 -s SAFE_HEAP=1 -s WASM=1 -s RESERVED_FUNCTION_POINTERS=1 --bind ")
 
 target_link_libraries (${WASM}  ${Boost_LIBRARIES})
 
