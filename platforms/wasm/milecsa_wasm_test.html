@@ -58,7 +58,7 @@
         const pair = new Module.Pair.Random( error )
         if( error.hasError ) {
             printLine( 'Fail', 'error' )
-            printLine( error.what, 'tab' )
+            printLine( "Reason: " + error.what, 'tab' )
         }
         else {
             printLine( 'OK', 'pass' )
@@ -70,7 +70,7 @@
         const pair_with_secret = new Module.Pair.WithSecret( "some secret phrase!", error )
         if( error.hasError ) {
             printLine( 'Fail', 'error' )
-            printLine( error.what, 'tab' )
+            printLine( "Reason: " + error.what, 'tab' )
         }
         else {
             printLine( 'OK', 'pass' )
@@ -82,7 +82,7 @@
         const pair_from_private_key = new Module.Pair.FromPrivateKey( pair_with_secret.private_key, error )
         if( error.hasError ) {
             printLine( 'Fail', 'error' )
-            printLine( error.what, 'tab' )
+            printLine( "Reason: " + error.what, 'tab' )
         }
         else if( pair_with_secret.private_key == pair_from_private_key.private_key &&
                  pair_with_secret.public_key == pair_from_private_key.public_key )
@@ -92,14 +92,14 @@
         }
         else {
             printLine( 'Fail', 'error' )
-            printLine( "Keys don't match" )
+            printLine( "Reason: Keys don't match", 'tab' )
         }
         printLine()
 
         print( 'Validate keys pair - ' )
         if( !Module.Pair.Validate( pair_from_private_key, error ) ) {
             printLine( 'Fail', 'error' )
-            printLine( error.what, 'tab' )
+            printLine( "Reason: " + error.what, 'tab' )
         }
         else  {
             printLine( 'OK', 'pass' )
@@ -109,7 +109,7 @@
         print( 'Validate public key - ' )
         if( !Module.Pair.ValidatePublicKey( pair_from_private_key.public_key, error ) ) {
             printLine( 'Fail', 'error' )
-            printLine( error.what, 'tab' )
+            printLine( "Reason: " + error.what, 'tab' )
         }
         else  {
             printLine( 'OK', 'pass' )
@@ -120,7 +120,7 @@
         if( !Module.Pair.ValidatePrivateKey(pair_from_private_key.private_key, error ) )
         {
             printLine( 'Fail', 'error' )
-            printLine( error.what, 'tab' )
+            printLine( "Reason: " + error.what, 'tab' )
         }
         else  {
             printLine( 'OK', 'pass' )
