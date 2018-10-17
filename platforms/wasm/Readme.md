@@ -77,7 +77,7 @@
 ```javascript
 
     //
-    // public key form INOPUT FROM 
+    // public key from INPUT FORM 
     //
     if(!Module.Pair.ValidatePublicKey(field.public_key, error)){
         //
@@ -90,7 +90,7 @@
 ```javascript
 
     //
-    // private key form INOPUT FROM 
+    // private key from INPUT FORM 
     //
 
     if(!Module.Pair.ValidatePrivateKey(field.private_key, error)){
@@ -113,7 +113,7 @@
      var ret =  transaction.Transfer(
             pair,                    // pair
             destination.public_key,  // destination
-            "2",                     // block id
+            "2",                     // block id, @see: getCurrentBlockId bellow
             "0",                     // transaction id
             0,                       // asset code
             "1000",                  // amount
@@ -146,7 +146,7 @@
      var ret =  transaction.Emission(
             pair,                    // pair
             destination.public_key,  // destination
-            "2",                     // block id
+            "2",                     // block id, @see: getCurrentBlockId bellow
             "0",                     // transaction id
             0,                       // asset code
             "1000",                  // amount
@@ -213,6 +213,27 @@ sendTransaction( transaction_body ) {
 }
 ```
 
+### Get wallet state
+```javascript
+getWalletSate( publicKey, count ) {
+  return axios.post(
+    "https://node002.testnet.mile.global",
+    {
+      method: "get-wallet-state",
+      params: {"public-key": publicKey},
+      id: 1,
+      jsonrpc: "2.0",
+      version: "1.0"
+    }
+  );
+}
+//
+//  response example: {"id":"1","jsonrpc":"2.0","result":{"balance":[{"amount":"432.67","code":"0"}],"exist":"1","last-transaction-id":"16808","tags":""},"version":"0.0"}
+//
+// 
+// last-transaction-id can be used in transaction builder as transaction id
+```
+
 ### Get last transactions
 ```javascript
 getLastTransactions( publicKey, count ) {
@@ -220,6 +241,22 @@ getLastTransactions( publicKey, count ) {
     "https://node002.testnet.mile.global",
     {
       method: "get-wallet-transactions",
+      params: {"public-key": publicKey, "limit": 10 },
+      id: 3,
+      jsonrpc: "2.0",
+      version: "1.0"
+    }
+  );
+}
+```
+
+### Get current block id
+```javascript
+getCurrentBlockId( publicKey, count ) {
+  return axios.post(
+    "https://node002.testnet.mile.global",
+    {
+      method: "get-current-block-id",
       params: {"public-key": publicKey, count },
       id: 3,
       jsonrpc: "2.0",
@@ -227,4 +264,10 @@ getLastTransactions( publicKey, count ) {
     }
   );
 }
+
+//
+//  response example: {"id":"3","jsonrpc":"2.0","result":{"id":42},"version":"0.0"}
+//
+// 
+// id MUST be used in transaction builder as block id
 ```
