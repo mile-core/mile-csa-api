@@ -16,10 +16,19 @@
 ## Build WASM extension to use the API in a javascript code
     $ cmake -Dwasm=True ..; make -j4; cd platforms/wasm
     $ cp ../../../platforms/wasm/milecsa_wasm_test.html ./
-    $ emrun --serve_root ./ --browser chrome milecsa_wasm_test.html 
+    $ emrun --serve_root ./ --browser chrome milecsa_wasm_test.html
+    
+or in case of using Node.js install `http-server` once
+
+    $ npm install http-server -g
+    
+and then
+
+    $ cmake -Dwasm=True ..; make -j4; cd platforms/wasm
+    $ cp ../../../platforms/wasm/milecsa_wasm_test.html ./index.html
+    $ http-server -o
 
 ## Boost updates (if it needs)
-
     $ wget https://dl.bintray.com/boostorg/release/1.67.0/source/boost_1_67_0.tar.gz
     $ tar -xzf boost_1_*
     $ cd boost_1_*
