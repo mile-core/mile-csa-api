@@ -66,7 +66,7 @@
         }
         printLine()
 
-        print( 'From secret - ' )
+        print( 'From secret - ' )
         const pair_with_secret = new Module.Pair.WithSecret( "some secret phrase!", error )
         if( error.hasError ) {
             printLine( 'Fail', 'error' )
@@ -96,7 +96,7 @@
         }
         printLine()
 
-        print( 'Validate keys pair - ' )
+        print( 'Validate keys pair - ' )
         if( !Module.Pair.Validate( pair_from_private_key, error ) ) {
             printLine( 'Fail', 'error' )
             printLine( error.what, 'tab' )
@@ -106,7 +106,7 @@
         }
         printLine()
 
-        print( 'Validate public key - ' )
+        print( 'Validate public key - ' )
         if( !Module.Pair.ValidatePublicKey( pair_from_private_key.public_key, error ) ) {
             printLine( 'Fail', 'error' )
             printLine( error.what, 'tab' )
@@ -116,7 +116,7 @@
         }
         printLine()
 
-        print( 'Validate private key - ' )
+        print( 'Validate private key - ' )
         if( !Module.Pair.ValidatePrivateKey(pair_from_private_key.private_key, error ) )
         {
             printLine( 'Fail', 'error' )
@@ -127,7 +127,7 @@
         }
         printLine()
 
-        print( 'Validate invalid public key - ' )
+        print( 'Validate invalid public key - ' )
         if( !Module.Pair.ValidatePublicKey( '+' + pair_from_private_key.public_key, error ) )
         {
             printLine( 'OK', 'pass' )
@@ -138,7 +138,7 @@
         }
         printLine()
 
-        print( 'Validate invalid private key - ' )
+        print( 'Validate invalid private key - ' )
         if( !Module.Pair.ValidatePrivateKey( '--', error ) )
         {
             printLine( 'OK', 'pass' )
