@@ -8,11 +8,40 @@
 
 namespace milecsa::nodejs {
 
-    Nan::Persistent<v8::FunctionTemplate> Module::constructor;
 
     milecsa::ErrorHandler error_handler = [](milecsa::result code, std::string error){
         Nan::ThrowError(Nan::New("milecsa error: " + error).ToLocalChecked());
     };
+
+    ///
+    /// Transaction
+    ///
+    NAN_METHOD(detail::Transaction::New) {
+            detail::Transaction* t = new detail::Transaction();
+            t->Wrap(info.Holder());
+            info.GetReturnValue().Set(info.Holder());
+    }
+
+    NAN_METHOD(detail::Transaction::Transfer) {
+
+            v8::Local<v8::Object> object = Nan::New<v8::Object>();
+
+            v8::Local<v8::String> from = Nan::New("from").ToLocalChecked();
+            v8::Local<v8::Value> from_value = Nan::New("...").ToLocalChecked();
+            Nan::Set(object, from, from_value);
+
+
+            v8::Local<v8::String> to = Nan::New("to").ToLocalChecked();
+            v8::Local<v8::Value> to_value = Nan::New("...").ToLocalChecked();
+            Nan::Set(object, to, to_value);
+
+            info.GetReturnValue().Set(object);
+    }
+
+    ///
+    /// Module
+    ///
+    Nan::Persistent<v8::FunctionTemplate> Module::constructor;
 
     NAN_MODULE_INIT(Module::Init) {
             v8::Local<v8::FunctionTemplate> ctor = Nan::New<v8::FunctionTemplate>(Module::New);
@@ -22,6 +51,8 @@ namespace milecsa::nodejs {
 
             Nan::SetAccessor(ctor->InstanceTemplate(), Nan::New("Pair").ToLocalChecked(), Module::HandleGetters);
 
+            Nan::SetPrototypeMethod(ctor, "Transaction", Transaction);
+
             target->Set(Nan::New("Module").ToLocalChecked(), ctor->GetFunction());
     }
 
@@ -29,6 +60,13 @@ namespace milecsa::nodejs {
             Module* module = new Module();
             module->Wrap(info.Holder());
             info.GetReturnValue().Set(info.Holder());
+    }
+
+    NAN_METHOD(Module::Transaction) {
+            const int argc = 1;
+            v8::Local<v8::Value> argv[argc] = {info[0]};
+            v8::Local<v8::Function> cons = Nan::New(detail::Transaction::constructor());
+            info.GetReturnValue().Set(Nan::NewInstance(cons, argc, argv).ToLocalChecked());
     }
 
     static inline void __update_key(const std::optional<milecsa::keys::Pair> &pair, const Nan::FunctionCallbackInfo<v8::Value>& info){
@@ -117,7 +155,7 @@ namespace milecsa::nodejs {
     }
 
     void ValidatePrivateKey(const Nan::FunctionCallbackInfo<v8::Value>& info) {
-        
+
         if(!__check_one_args(info,"ValidatePrivateKey","private key"))
             return;
 
@@ -154,7 +192,9 @@ namespace milecsa::nodejs {
 
                 info.GetReturnValue().Set(object);
 
-            }  else {
+            }
+            else {
+
                 info.GetReturnValue().Set(Nan::Undefined());
             }
     }

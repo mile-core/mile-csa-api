@@ -4,6 +4,7 @@
 namespace milecsa::nodejs  {
 
     NAN_MODULE_INIT(InitModule) {
+            detail::Transaction::init_class();
             Module::Init(target);
     }
 
