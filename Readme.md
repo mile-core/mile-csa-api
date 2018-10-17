@@ -5,6 +5,7 @@
 1. cmake
 1. boost multiprecision installed includes (>=1.66, exclude 1.68!)
 1. [Wasm compiler](https://webassembly.org): [emscripten](http://kripken.github.io/emscripten-site/)
+1. [cmake-js](https://github.com/cmake-js/cmake-js) to build node.js addons
 
 
 ## Build
@@ -17,6 +18,18 @@
     $ cmake -Dwasm=True ..; make -j4; cd platforms/wasm
     $ cp ../../../platforms/wasm/milecsa_wasm_test.html ./
     $ emrun --serve_root ./ --browser chrome milecsa_wasm_test.html 
+
+
+## Build NODE.JS Addon to use the API in a node.js 
+Install cmake-js if it needs:
+
+    $ npm install -g cmake-js
+
+Build addon milecsa mudule:
+  
+    $ cmake -Dnodejs=True ..; make;
+    $ make nodejs-test
+     
 
 ## How to use javascript MILE CSA API
 * [MILE CSA JavaScript API](https://github.com/mile-core/mile-csa-api/blob/master/platforms/wasm/Readme.md)

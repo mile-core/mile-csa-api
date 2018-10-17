@@ -12,9 +12,6 @@ if(CCACHE_FOUND)
     set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
 endif(CCACHE_FOUND)
 
-set (Boost_USE_STATIC_LIBS ON)
-set (Boost_USE_MULTITHREADED OFF)
-
 set (BOOST_COMPONENTS)
 find_package (Boost  REQUIRED COMPONENTS ${BOOST_COMPONENTS})
 include_directories(${Boost_INCLUDE_DIRS})
@@ -46,6 +43,7 @@ endif()
 
 option(wasm "wasm" OFF)
 
+
 if(wasm)
     add_subdirectory(platforms/wasm)
 else()
@@ -54,3 +52,14 @@ else()
     enable_testing ()
 endif()
 unset(platforms/wasm CACHE)
+
+if (nodejs)
+    add_custom_target (
+            nodejs
+            COMMAND npm install --prefix ../platforms/nodejs
+    )
+    add_custom_target (
+            nodejs-test
+            COMMAND npm test --prefix ../platforms/nodejs
+    )
+endif ()
