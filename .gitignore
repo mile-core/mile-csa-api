@@ -17,6 +17,8 @@ Pods
 Podfile.lock
 *.xcworkspacedata
 .version
+.vscode
+
 
 # Dependency directory
 # Commenting this out is preferred by some people, see

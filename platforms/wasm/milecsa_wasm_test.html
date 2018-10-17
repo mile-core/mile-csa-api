@@ -1,73 +1,83 @@
 <!doctype html>
 <html>
+<head>
+<title>Mile web library test</title>
 <script src="milecsa.js"></script>
 <script>
+    function printLine( str ) {
+        const node = document.createElement("PRE")
+        const out = document.createTextNode( str )
+        node.appendChild( out )
+        document.getElementsByTagName("BODY")[0].append( node )
+        console.log( str )
+    }
+    
     Module['onRuntimeInitialized'] = function() {
 
         var error = new Module.Error()
 
-        console.log("----  Pair tests  ----")
+        printLine("----  Pair tests  ----")
 
         var pair = new Module.Pair.Random(error)
 
         if (error.hasError) {
-            console.log("Error: " + error.what)
+            printLine("Error: " + error.what)
         }
 
-        console.log("Random private key: " + pair.private_key)
-        console.log("Random public key : " + pair.public_key)
+        printLine("Random private key: " + pair.private_key)
+        printLine("Random public key : " + pair.public_key)
 
         var pair_with_secret = new Module.Pair.WithSecret("some secret phrase!", error);
 
-        console.log("FromPrivateKey private key: " + pair_with_secret.private_key)
-        console.log("FromPrivateKey public key : " + pair_with_secret.public_key)
+        printLine("FromPrivateKey private key: " + pair_with_secret.private_key)
+        printLine("FromPrivateKey public key : " + pair_with_secret.public_key)
 
         var pair_from_private_key = new Module.Pair.FromPrivateKey(pair_with_secret.private_key, error);
 
-        console.log("FromPrivateKey private key: " + pair_from_private_key.private_key)
-        console.log("FromPrivateKey public key : " + pair_from_private_key.public_key)
+        printLine("FromPrivateKey private key: " + pair_from_private_key.private_key)
+        printLine("FromPrivateKey public key : " + pair_from_private_key.public_key)
 
         if(!Module.Pair.Validate(pair_from_private_key, error)){
-            console.log("Pair keys NOT validated: " + error.what)
+            printLine("Pair keys NOT validated: " + error.what)
         }
         else  {
-            console.log("Pair keys validated")
+            printLine("Pair keys validated")
         }
 
         if(!Module.Pair.ValidatePublicKey(pair_from_private_key.public_key, error)){
-            console.log("Public key NOT validated: " + error.what)
+            printLine("Public key NOT validated: " + error.what)
         }
         else  {
-            console.log("Public key validated")
+            printLine("Public key validated")
         }
 
         if(!Module.Pair.ValidatePrivateKey(pair_from_private_key.private_key, error)){
-            console.log("Private key NOT validated: " + error.what);
+            printLine("Private key NOT validated: " + error.what);
         }
         else  {
-            console.log("Private key validated")
+            printLine("Private key validated")
         }
 
         if(!Module.Pair.ValidatePublicKey('+' + pair_from_private_key.public_key, error)){
-            console.log("Invalid public key NOT validated: " + error.what);
+            printLine("Invalid public key NOT validated: " + error.what);
         }
         else  {
-            console.log("Public key validated")
+            printLine("Public key validated")
         }
 
         if(!Module.Pair.ValidatePrivateKey('--', error)){
-            console.log("Imvalid private key NOT validated: " + error.what);
+            printLine("Imvalid private key NOT validated: " + error.what);
         }
         else  {
-            console.log("Private key validated")
+            printLine("Private key validated")
         }
 
-        console.log("---- Transactions tests ----")
+        printLine("---- Transactions tests ----")
 
         var destination = Module.Pair.FromPrivateKey(pair_with_secret.private_key,error)
 
         if (!destination) {
-            console.log("Destination pair error: " + error.what)
+            printLine("Destination pair error: " + error.what)
         }
 
         var transaction = new Module.Transaction()
@@ -82,11 +92,11 @@
             "",                      // fee, always ""
             error)                   // error
 
-        console.log("Transaction transfer asset: " + (ret == Module.result.OK))
+        printLine("Transaction transfer asset: " + (ret == Module.result.OK))
 
-        console.log("Transaction transfer body: " + transaction.body)
+        printLine("Transaction transfer body: " + JSON.stringify( JSON.parse( transaction.body ), undefined, 2 ) )
 
-        console.log("-------")
+        printLine("-------")
 
         ret =  transaction.Emission(
             pair,                    // pair
@@ -99,10 +109,13 @@
             "",                      // fee, always ""
             error)
 
-        console.log("Transaction emission: " + ret)
+        printLine("Transaction emission: " + (ret == Module.result.OK))
 
-        console.log("Transaction emission body: " + transaction.body)
-
+        printLine("Transaction emission body: " + JSON.stringify( JSON.parse( transaction.body ), undefined, 2 ) )
     };
 </script>
+</head>
+<body>
+    <pre id='out'></pre>
+</body>
 </html>
