@@ -1,0 +1,23 @@
+{
+  "name": "milecsa",
+  "version": "1.0.0",
+  "description": "MILE Common Supported Architecture discovers crypto and transactions signing operation",
+  "license": "MIT",
+  "repository": {
+    "type": "https",
+    "url": "https://github.com/mile-core/mile-csa-api"
+  },
+  "dependencies": {
+    "bindings": "*",
+    "boost-lib": "^0.11.3",
+    "cmake-js": "*",
+    "nan": "*"
+  },
+  "scripts": {
+    "install": "cmake-js compile",
+    "test": "mocha tests"
+  },
+  "devDependencies": {
+    "mocha": "*"
+  }
+}
