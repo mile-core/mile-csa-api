@@ -2,120 +2,203 @@
 <html>
 <head>
 <title>Mile web library test</title>
+<style>
+    body {
+        font-family: monospace
+    }
+    .error {
+        color: maroon;
+    }
+    .pass {
+        color: green;
+    }
+    .tab {
+        padding-left: 4em;
+    }
+    .chapter {
+        color: blue;
+    }
+</style>
 <script src="milecsa.js"></script>
 <script>
-    function printLine( str ) {
-        const node = document.createElement("PRE")
-        const out = document.createTextNode( str )
-        node.appendChild( out )
-        document.getElementsByTagName("BODY")[0].append( node )
+    function print( str, className = '', newLine = false, pre = false ) {
+        let out
+        if( pre ) {
+            out = document.createElement( 'pre' )
+        }
+        else {
+            out = document.createElement( 'span' )
+        }
+        out.className = className
+        out.innerHTML = str + ( newLine ? '<br>' : '' )
+        document.getElementsByTagName( "body" )[0].append( out )
         console.log( str )
     }
-    
+
+    function printLine( str, className ) {
+        print( str ? str : '', className, true )
+    }
+
+    function printKey( key ) {
+        printLine( 'Private key: ' + key.private_key, 'tab' )
+        printLine( 'Public key : '  + key.public_key, 'tab'  )
+    }
+
+    function printJSON( out, className ) {
+        print( out, className, false, true )
+    }
+
     Module['onRuntimeInitialized'] = function() {
 
         var error = new Module.Error()
 
-        printLine("----  Pair tests  ----")
+        printLine( "----  Keys tests  ----", 'chapter' )
 
-        var pair = new Module.Pair.Random(error)
-
-        if (error.hasError) {
-            printLine("Error: " + error.what)
+        print( 'Random pair - ' )
+        const pair = new Module.Pair.Random( error )
+        if( error.hasError ) {
+            printLine( 'Fail', 'error' )
+            printLine( "Reason: " + error.what, 'tab' )
         }
-
-        printLine("Random private key: " + pair.private_key)
-        printLine("Random public key : " + pair.public_key)
-
-        var pair_with_secret = new Module.Pair.WithSecret("some secret phrase!", error);
-
-        printLine("FromPrivateKey private key: " + pair_with_secret.private_key)
-        printLine("FromPrivateKey public key : " + pair_with_secret.public_key)
-
-        var pair_from_private_key = new Module.Pair.FromPrivateKey(pair_with_secret.private_key, error);
-
-        printLine("FromPrivateKey private key: " + pair_from_private_key.private_key)
-        printLine("FromPrivateKey public key : " + pair_from_private_key.public_key)
-
-        if(!Module.Pair.Validate(pair_from_private_key, error)){
-            printLine("Pair keys NOT validated: " + error.what)
+        else {
+            printLine( 'OK', 'pass' )
+            printKey( pair )
         }
-        else  {
-            printLine("Pair keys validated")
-        }
+        printLine()
 
-        if(!Module.Pair.ValidatePublicKey(pair_from_private_key.public_key, error)){
-            printLine("Public key NOT validated: " + error.what)
+        print( 'From secret - ' )
+        const pair_with_secret = new Module.Pair.WithSecret( "some secret phrase!", error )
+        if( error.hasError ) {
+            printLine( 'Fail', 'error' )
+            printLine( "Reason: " + error.what, 'tab' )
         }
-        else  {
-            printLine("Public key validated")
+        else {
+            printLine( 'OK', 'pass' )
+            printKey( pair_with_secret )
         }
+        printLine( )
 
-        if(!Module.Pair.ValidatePrivateKey(pair_from_private_key.private_key, error)){
-            printLine("Private key NOT validated: " + error.what);
+        print( 'From Private key - ' )
+        const pair_from_private_key = new Module.Pair.FromPrivateKey( pair_with_secret.private_key, error )
+        if( error.hasError ) {
+            printLine( 'Fail', 'error' )
+            printLine( "Reason: " + error.what, 'tab' )
         }
-        else  {
-            printLine("Private key validated")
+        else if( pair_with_secret.private_key == pair_from_private_key.private_key &&
+                 pair_with_secret.public_key == pair_from_private_key.public_key )
+        {
+            printLine( 'OK', 'pass' )
+            printKey( pair_from_private_key )
         }
+        else {
+            printLine( 'Fail', 'error' )
+            printLine( "Reason: Keys don't match", 'tab' )
+        }
+        printLine()
 
-        if(!Module.Pair.ValidatePublicKey('+' + pair_from_private_key.public_key, error)){
-            printLine("Invalid public key NOT validated: " + error.what);
-        }
-        else  {
-            printLine("Public key validated")
-        }
-
-        if(!Module.Pair.ValidatePrivateKey('--', error)){
-            printLine("Imvalid private key NOT validated: " + error.what);
+        print( 'Validate keys pair - ' )
+        if( !Module.Pair.Validate( pair_from_private_key, error ) ) {
+            printLine( 'Fail', 'error' )
+            printLine( "Reason: " + error.what, 'tab' )
         }
         else  {
-            printLine("Private key validated")
+            printLine( 'OK', 'pass' )
         }
+        printLine()
 
-        printLine("---- Transactions tests ----")
-
-        var destination = Module.Pair.FromPrivateKey(pair_with_secret.private_key,error)
-
-        if (!destination) {
-            printLine("Destination pair error: " + error.what)
+        print( 'Validate public key - ' )
+        if( !Module.Pair.ValidatePublicKey( pair_from_private_key.public_key, error ) ) {
+            printLine( 'Fail', 'error' )
+            printLine( "Reason: " + error.what, 'tab' )
         }
+        else  {
+            printLine( 'OK', 'pass' )
+        }
+        printLine()
 
+        print( 'Validate private key - ' )
+        if( !Module.Pair.ValidatePrivateKey(pair_from_private_key.private_key, error ) )
+        {
+            printLine( 'Fail', 'error' )
+            printLine( "Reason: " + error.what, 'tab' )
+        }
+        else  {
+            printLine( 'OK', 'pass' )
+        }
+        printLine()
+
+        print( 'Validate invalid public key - ' )
+        if( !Module.Pair.ValidatePublicKey( '+' + pair_from_private_key.public_key, error ) )
+        {
+            printLine( 'OK', 'pass' )
+            printLine( "Reason: " + error.what, 'tab' );
+        }
+        else  {
+            printLine( 'Fail', 'error' )
+        }
+        printLine()
+
+        print( 'Validate invalid private key - ' )
+        if( !Module.Pair.ValidatePrivateKey( '--', error ) )
+        {
+            printLine( 'OK', 'pass' )
+            printLine( "Reason: " + error.what, 'tab' );
+        }
+        else {
+            printLine( 'Fail', 'error' )
+        }
+        printLine()
+
+        printLine( "---- Transactions tests ----", 'chapter' )
+
+        print( 'Transaction transfer asset - ' )
         var transaction = new Module.Transaction()
         var ret =  transaction.Transfer(
-            pair,                    // pair
-            destination.public_key,  // destination
-            "2",                     // block id
-            "0",                     // transaction id
-            0,                       // asset code
-            "1000",                  // amount
-            "memo field",            // description
-            "",                      // fee, always ""
-            error)                   // error
+            pair,                        // pair
+            pair_with_secret.public_key, // destination
+            "2",                         // block id
+            "0",                         // transaction id
+            0,                           // asset code
+            "1000",                      // amount
+            "memo field",                // description
+            "",                          // fee, always ""
+            error                        // error
+        )
 
-        printLine("Transaction transfer asset: " + (ret == Module.result.OK))
+        if(  ret == Module.result.OK ) {
+            printLine( 'OK', 'pass' )
+            print( "Transaction transfer body:", 'tab' )
+            printJSON( JSON.stringify( JSON.parse( transaction.body ), undefined, 2 ), 'tab' )
+        }
+        else {
+            printLine( 'Fail', 'error' )
+        }
+        printLine()
 
-        printLine("Transaction transfer body: " + JSON.stringify( JSON.parse( transaction.body ), undefined, 2 ) )
-
-        printLine("-------")
-
+        print( 'Transaction emission - ' )
         ret =  transaction.Emission(
-            pair,                    // pair
-            destination.public_key,  // destination
-            "2",                     // block id
-            "0",                     // transaction id
-            0,                       // asset code
-            "1000",                  // amount
-            "memo field",            // description
-            "",                      // fee, always ""
-            error)
+            pair,                        // pair
+            pair_with_secret.public_key, // destination
+            "2",                         // block id
+            "0",                         // transaction id
+            0,                           // asset code
+            "1000",                      // amount
+            "memo field",                // description
+            "",                          // fee, always ""
+            error
+        )
 
-        printLine("Transaction emission: " + (ret == Module.result.OK))
-
-        printLine("Transaction emission body: " + JSON.stringify( JSON.parse( transaction.body ), undefined, 2 ) )
-    };
+        if(  ret == Module.result.OK ) {
+            printLine( 'OK', 'pass' )
+            print( "Transaction emission body:", 'tab' )
+            printJSON( JSON.stringify( JSON.parse( transaction.body ), undefined, 2 ), 'tab' )
+        }
+        else {
+            printLine( 'Fail', 'error' )
+        }
+    }
 </script>
 </head>
 <body>
-    <pre id='out'></pre>
 </body>
 </html>
