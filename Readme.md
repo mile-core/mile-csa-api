@@ -49,7 +49,7 @@ Build addon milecsa mudule on **mac os**:
     $ make nodejs-test
           
 
-## Update Ubuntu nodejs to v10
+## Update Ubuntu18.04 nodejs to v10
     $ sudo apt install curl
     $ curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
     $ sudo apt install nodejs
