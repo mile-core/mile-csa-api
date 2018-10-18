@@ -59,8 +59,14 @@ target_include_directories(
         ../vendor/nlohmann
         ../include
         ../vendor/crypto
-
 )
 
+FILE(GLOB INCLUDE_FILES
+        ../vendor/crypto/*.h
+        ../vendor/crypto/*.hpp
+        ../vendor/ed25519/src/*.h
+        ../include/*.hpp
+        )
 
-
+install(FILES ${INCLUDE_FILES} DESTINATION include)
+install(TARGETS ${PROJECT_LIB} DESTINATION lib)

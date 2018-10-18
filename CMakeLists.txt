@@ -63,3 +63,5 @@ if (nodejs)
             COMMAND npm test --prefix ../platforms/nodejs
     )
 endif ()
+
+SET(CMAKE_INSTALL_PREFIX "/usr/local/milecsa")
