@@ -62,6 +62,7 @@ target_include_directories(
 )
 
 FILE(GLOB INCLUDE_FILES
+        ../vendor/nlohmann/*.hpp
         ../vendor/crypto/*.h
         ../vendor/crypto/*.hpp
         ../vendor/ed25519/src/*.h
