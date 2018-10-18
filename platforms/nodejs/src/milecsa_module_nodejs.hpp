@@ -22,12 +22,14 @@ namespace milecsa::nodejs {
 
             static NAN_METHOD(New);
             static NAN_METHOD(Transfer);
+            static NAN_METHOD(Emission);
 
             static void init_class() {
                 v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
                 tpl->SetClassName(Nan::New("Transaction").ToLocalChecked());
                 tpl->InstanceTemplate()->SetInternalFieldCount(1);
                 Nan::SetPrototypeMethod(tpl, "Transfer", Transfer);
+                Nan::SetPrototypeMethod(tpl, "Emission", Emission);
                 constructor().Reset(Nan::GetFunction(tpl).ToLocalChecked());
             }
         };

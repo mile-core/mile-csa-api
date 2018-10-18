@@ -22,20 +22,136 @@ namespace milecsa::nodejs {
             info.GetReturnValue().Set(info.Holder());
     }
 
+    void __transaction(const Nan::FunctionCallbackInfo<v8::Value>& info, int method) {
+
+        if (!info[0]->IsObject()){
+            return Nan::ThrowError(Nan::New("milecsa error: Transaction - expected argument 0 wallet pair").ToLocalChecked());
+        }
+
+        if (!info[1]->IsString()){
+            return Nan::ThrowError(Nan::New("milecsa error: Transaction - expected argument 1 destination public key").ToLocalChecked());
+        }
+
+        if (!info[2]->IsString()){
+            return Nan::ThrowError(Nan::New("milecsa error: Transaction - expected argument 2 block id").ToLocalChecked());
+        }
+
+        if (!info[3]->IsString()){
+            return Nan::ThrowError(Nan::New("milecsa error: Transaction - expected argument 3 trx id").ToLocalChecked());
+        }
+
+        if (!info[4]->IsNumber()){
+            return Nan::ThrowError(Nan::New("milecsa error: Transaction - expected argument 4 asset code").ToLocalChecked());
+        }
+
+        if (!info[5]->IsString()){
+            return Nan::ThrowError(Nan::New("milecsa error: Transaction - expected argument 5 amount").ToLocalChecked());
+        }
+
+        if (!info[6]->IsString()){
+            return Nan::ThrowError(Nan::New("milecsa error: Transaction - expected argument 5 description").ToLocalChecked());
+        }
+
+        if (!info[7]->IsString()){
+            return Nan::ThrowError(Nan::New("milecsa error: Transaction - expected argument 5 fee").ToLocalChecked());
+        }
+
+        v8::Local<v8::Object> jsonObj = info[0]->ToObject();
+
+        v8::Local<v8::String> pk_name = Nan::New("public_key").ToLocalChecked();
+        v8::Local<v8::String> pvk_name = Nan::New("private_key").ToLocalChecked();
+
+        std::string public_key;
+        std::string private_key;
+
+        std::string dstWalletPublicKey = *v8::String::Utf8Value(v8::Local<v8::String>::Cast(info[1]));
+        std::string blockId = *v8::String::Utf8Value(v8::Local<v8::String>::Cast(info[2]));
+        std::string transactionId = *v8::String::Utf8Value(v8::Local<v8::String>::Cast(info[3]));
+        unsigned short assetCode = info[4]->NumberValue();
+        std::string amount = *v8::String::Utf8Value(v8::Local<v8::String>::Cast(info[5]));
+        std::string desc = *v8::String::Utf8Value(v8::Local<v8::String>::Cast(info[6]));
+        std::string fee = *v8::String::Utf8Value(v8::Local<v8::String>::Cast(info[7]));
+
+        if (Nan::HasOwnProperty(jsonObj, pk_name).FromJust()) {
+            auto  pkValue = Nan::Get(jsonObj, pk_name).ToLocalChecked();
+            public_key = std::string(*Nan::Utf8String(pkValue->ToString()));
+        }
+        else {
+            Nan::ThrowError(Nan::New("milecsa error: Transaction - pair error").ToLocalChecked());
+        }
+
+        if (Nan::HasOwnProperty(jsonObj, pvk_name).FromJust()) {
+            auto  pkValue = Nan::Get(jsonObj, pvk_name).ToLocalChecked();
+            private_key = std::string(*Nan::Utf8String(pkValue->ToString()));
+        }
+        else {
+            Nan::ThrowError(Nan::New("milecsa error: Transaction - pair error").ToLocalChecked());
+        }
+
+
+        uint256_t bid;
+        uint64_t tid;
+        StringToUInt256(blockId, bid, false);
+        StringToUInt64(transactionId, tid, false);
+
+        auto p = milecsa::keys::Pair::FromPrivateKey(private_key, error_handler);
+        if (!p){
+            return;
+        }
+
+        using transfer = milecsa::transaction::Transfer<nlohmann::json>;
+        using emission = milecsa::transaction::Emission<nlohmann::json>;
+
+        std::optional<milecsa::transaction::Request<nlohmann::json>> request;
+
+        if (method == 0)
+            request = transfer::CreateRequest(
+                    *p,
+                    dstWalletPublicKey,
+                    bid,
+                    tid,
+                    assetCode,
+                    amount,
+                    desc,
+                    fee,
+                    error_handler);
+        else
+            request = emission::CreateRequest(
+                    *p,
+                    dstWalletPublicKey,
+                    bid,
+                    tid,
+                    assetCode,
+                    amount,
+                    desc,
+                    fee,
+                    error_handler);
+
+
+        if (request) {
+
+            if (auto trx = request->get_body()) {
+                v8::Local<v8::String> json_string = Nan::New(trx->dump()).ToLocalChecked();
+
+                Nan::JSON NanJSON;
+                Nan::MaybeLocal<v8::Value> result = NanJSON.Parse(json_string);
+                if (!result.IsEmpty()) {
+                    v8::Local<v8::Value> val = result.ToLocalChecked();
+                    info.GetReturnValue().Set(val);
+                }
+            }
+            else {
+                Nan::ThrowError(Nan::New("milecsa error: Transaction - singing error").ToLocalChecked());
+            }
+        }
+    }
+
     NAN_METHOD(detail::Transaction::Transfer) {
+            __transaction(info,0);
+    }
 
-            v8::Local<v8::Object> object = Nan::New<v8::Object>();
-
-            v8::Local<v8::String> from = Nan::New("from").ToLocalChecked();
-            v8::Local<v8::Value> from_value = Nan::New("...").ToLocalChecked();
-            Nan::Set(object, from, from_value);
-
-
-            v8::Local<v8::String> to = Nan::New("to").ToLocalChecked();
-            v8::Local<v8::Value> to_value = Nan::New("...").ToLocalChecked();
-            Nan::Set(object, to, to_value);
-
-            info.GetReturnValue().Set(object);
+    NAN_METHOD(detail::Transaction::Emission) {
+            __transaction(info,1);
     }
 
     ///
@@ -91,24 +207,6 @@ namespace milecsa::nodejs {
         }
     }
 
-    void WithSecret(const Nan::FunctionCallbackInfo<v8::Value>& info) {
-
-        if(info.Length() != 1) {
-            return Nan::ThrowError(Nan::New("milecsa error: WithSecret - expected secret phrase").ToLocalChecked());
-        }
-
-        if(!info[0]->IsString()) {
-            return Nan::ThrowError(Nan::New("Vmilecsa error: WithSecret - expected argument string").ToLocalChecked());
-        }
-
-        v8::Local<v8::String> str = v8::Local<v8::String>::Cast(info[0]);
-        v8::String::Utf8Value phrase(str);
-
-        if (auto pair = milecsa::keys::Pair::WithSecret(*phrase, error_handler)){
-            __update_key(pair,info);
-        }
-    }
-
     static inline bool __check_one_args(const Nan::FunctionCallbackInfo<v8::Value>& info, const std::string &name, const std::string &what){
         std::string prefix = "milecsa error: " + name + " - expected ";
         if(info.Length() != 1) {
@@ -126,13 +224,24 @@ namespace milecsa::nodejs {
         return true;
     }
 
+    void WithSecret(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+
+        if(!__check_one_args(info,"WithSecret","secret phrase"))
+            return;
+
+        v8::String::Utf8Value phrase(v8::Local<v8::String>::Cast(info[0]));
+
+        if (auto pair = milecsa::keys::Pair::WithSecret(*phrase, error_handler)){
+            __update_key(pair,info);
+        }
+    }
+
     void FromPrivateKey(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 
         if(!__check_one_args(info,"FromPrivateKey","private key"))
             return;
 
-        v8::Local<v8::String> str = v8::Local<v8::String>::Cast(info[0]);
-        v8::String::Utf8Value pvk(str);
+        v8::String::Utf8Value pvk(v8::Local<v8::String>::Cast(info[0]));
 
         if (auto pair = milecsa::keys::Pair::FromPrivateKey(*pvk, error_handler)){
             __update_key(pair,info);
@@ -144,8 +253,7 @@ namespace milecsa::nodejs {
         if(!__check_one_args(info,"ValidatePublicKey","public key"))
             return;
 
-        v8::Local<v8::String> str = v8::Local<v8::String>::Cast(info[0]);
-        v8::String::Utf8Value pk(str);
+        v8::String::Utf8Value pk(v8::Local<v8::String>::Cast(info[0]));
 
         if (milecsa::keys::Pair::ValidatePublicKey(*pk, error_handler)){
             info.GetReturnValue().Set(Nan::True());
@@ -159,8 +267,7 @@ namespace milecsa::nodejs {
         if(!__check_one_args(info,"ValidatePrivateKey","private key"))
             return;
 
-        v8::Local<v8::String> str = v8::Local<v8::String>::Cast(info[0]);
-        v8::String::Utf8Value pvk(str);
+        v8::String::Utf8Value pvk(v8::Local<v8::String>::Cast(info[0]));
 
         if (milecsa::keys::Pair::ValidatePrivateKey(*pvk, error_handler)){
             info.GetReturnValue().Set(Nan::True());

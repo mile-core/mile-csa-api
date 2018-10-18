@@ -3,8 +3,8 @@
 /* global it,describe */
 var milecsa = require('../build/Release/milecsa');
 var assert = require("assert");
+
 var Module = new milecsa.Module()
-//var Transaction = new milecsa.Transaction()
 
 describe("Boost Based Addon", function() {
     it("initial test", function() {
@@ -34,21 +34,62 @@ describe("Boost Based Addon", function() {
             Module.Pair.ValidatePublicKey("")
         }
         catch (e) {
-            console.log("Invalide ValidatePublicKey key: " + e)
+            console.log("Invalid ValidatePublicKey key: " + e)
         }
 
         try {
             var from_private = Module.Pair.FromPrivateKey("invalide")
         }
         catch (e) {
-            console.log("Invalide Private key: " + e)
+            console.log("Invalid Private key: " + e)
         }
 
         var transaction =  new Module.Transaction()
-        var body  = transaction.Transfer()
 
         console.log(" Transaction : " + transaction)
-        console.log(body)
+
+        var transfer  =  transaction.Transfer(
+            pair,                    // pair
+            from_private.public_key, // destination
+            "2",                     // block id
+            "0",                     // transaction id
+            0,                       // asset code
+            "1000",                  // amount
+            "memo field",            // description
+            ""                       // fee, always ""
+            )
+
+        console.log(" Transfer    : ", transfer);
+
+        var emission  =  transaction.Emission(
+            pair,                    // pair
+            from_private.public_key, // destination
+            "2",                     // block id
+            "0",                     // transaction id
+            0,                       // asset code
+            "1000",                  // amount
+            "memo field",            // description
+            ""                       // fee, always ""
+        )
+
+        console.log(" Emission    : ", emission);
+
+
+        try {
+            var emission  =  transaction.Emission(
+                pair,                    // pair
+                "not valid",             // destination
+                "2",                     // block id
+                "0",                     // transaction id
+                0,                       // asset code
+                "1000",                  // amount
+                "memo field",            // description
+                ""                       // fee, always ""
+            )
+        }
+        catch (e) {
+            console.log("Invalid Emission " + e)
+        }
 
         assert.equal(from_private.public_key, with_secret.public_key);
     });
