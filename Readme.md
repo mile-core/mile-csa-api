@@ -37,7 +37,7 @@ Install cmake-js if it needs:
 
 Build addon milecsa mudule:
   
-    $ cmake -Dnodejs=True ..; make;
+    $ cmake -Dnodejs=True ..; make nodejs;
     $ make nodejs-test
      
 
