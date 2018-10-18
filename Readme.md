@@ -34,12 +34,26 @@ and then
 Install cmake-js if it needs:
 
     $ npm install -g cmake-js
+    
+Build addon milecsa with boost module on **Ubuntu18.04**:
 
-Build addon milecsa mudule:
+    $ cd platforms/nodejs
+    $ npm install
+    $ cmake-js rebuild
+    $ npm test
+
+Build addon milecsa mudule on **mac os**:
   
+    $ mkdir -p build; cd build;
     $ cmake -Dnodejs=True ..; make nodejs;
     $ make nodejs-test
-     
+          
+
+## Update Ubuntu nodejs to v10
+    $ sudo apt install curl
+    $ curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
+    $ sudo apt install nodejs
+    $ node --version
 
 ## How to use javascript MILE CSA API
 * [MILE CSA JavaScript API](https://github.com/mile-core/mile-csa-api/blob/master/platforms/wasm/Readme.md)
@@ -57,7 +71,6 @@ Build addon milecsa mudule:
 1. Centos7 (gcc v7.0)
 1. Ubuntu 18.4
 1. OSX 10.13, XCode10
-
 
 ### Wallet public/private keys Pair class
 
