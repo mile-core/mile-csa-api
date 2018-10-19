@@ -31,43 +31,63 @@ namespace milecsa {
 
     namespace keys {
 
-        /** Generate random Wallet Key Pair
+        /**
+         * Generate random Wallet Keys Pair
          *
-         * */
+         * @param pair - generated pair
+         * @param errorMessage - error message if something wrong happened
+         * @return ok or reason
+         */
         light::result generate(
-                light::Pair &keysPair,
-                std::string &errorMessage);
-
-
-        /** Generate Wallet pair from private key
-         *
-         * */
-        light::result generate_from_private_key(
-                light::Pair &keysPair,
-                const std::string &privateKey,
+                light::Pair &pair,
                 std::string &errorMessage);
 
 
         /**
+         * Generate Wallet pair from private key
          *
+         * @param pair - generated pair
+         * @param privateKey - private key
+         * @param errorMessage - error message if something wrong happened
+         * @return ok or reason
+         * */
+        light::result generate_from_private_key(
+                light::Pair &pair,
+                const std::string &privateKey,
+                std::string &errorMessage);
+
+        /**
+         * Generate Wallet pair from private key
+         *
+         * @param pair - generated pair
+         * @param phrase - secret phrase
+         * @param errorMessage - error message if something wrong happened
+         * @return ok or reasone
          * */
         light::result generate_with_secret(
-                light::Pair &keysPair,
+                light::Pair &pair,
                 const std::string &phrase,
                 std::string &errorMessage);
 
 
-        /** Validate key pair, (i.e. exist the pairs on curve ed25519 or not)
+        /**
+         * Validate key pair, (i.e. exist the pairs on curve ed25519 or not)
          *
+         * @param pair wallet keys
+         * @param errorMessage - error message if something wrong happened
+         * @return ok or reason
          * */
         light::result validate(
-                const light::Pair &keyPair,
+                const light::Pair &pair,
                 std::string &errorMessage);
 
 
         /**
          * Validate public key, (i.e. exist the pairs on curve ed25519 or not)
          *
+         * @param publicKey
+         * @param errorMessage - error message if something wrong happened
+         * @return ok or reason
          * */
         light::result validate_public_key(
                 const std::string &publicKey,
@@ -76,7 +96,9 @@ namespace milecsa {
 
         /**  Validate private key, (i.e. exist the pairs on curve ed25519 or not)
          *
-         *
+         * @param privateKey
+         * @param errorMessage - error message if something wrong happened
+         * @return ok or reason
          * */
         light::result validate_private_key(
                 const std::string &privateKey,
@@ -87,11 +109,25 @@ namespace milecsa {
 
     namespace transaction {
 
-        static const uint64_t default_transaction = UINT_FAST64_MAX;
+        static const uint64_t default_transaction_id = UINT_FAST64_MAX;
 
-        /** Prepare signed transaction JSON packet for transfer assets to send to the MILE blockchain.
+        /**
          *
-         * */
+         * Prepare signed transaction JSON packet for transfer assets to send to the MILE blockchain.
+         *
+         * @param privateKey - owner private key
+         * @param destinationPublicKey - recipient address, public key
+         * @param blockId - current blockchain network block id
+         * @param transactionId - user defined id or milecsa::transaction::default_transaction_id
+         * @param assetCode - asset code
+         * @param amount - transfer amount
+         * @param description - transfer description
+         * @param fee - always empty
+         * @param transaction - returned SIGNED transaction json body, can send as "params" keyword for json-rpc method "send-transaction"
+         * @param digest - uniq transaction digest string
+         * @param errorMessage - error message if something wrong happened
+         * @return ok or reason
+         */
         light::result prepare_transfer(const std::string &privateKey,
                                        const std::string &destinationPublicKey,
 
@@ -110,6 +146,22 @@ namespace milecsa {
                                        std::string &digest,
                                        std::string &errorMessage);
 
+        /**
+         * Prepare signed transaction JSON packet for making emission of XDR to send to the MILE blockchain.
+         *
+         * @param privateKey
+         * @param dstWalletPublicKey
+         * @param blockId
+         * @param transactionId
+         * @param asset
+         * @param amount
+         * @param description
+         * @param fee
+         * @param transaction
+         * @param digest
+         * @param errorMessage
+         * @return
+         */
         light::result prepare_emission(const std::string &privateKey,
                                        const std::string &dstWalletPublicKey,
 
@@ -128,11 +180,20 @@ namespace milecsa {
                                        std::string &digest,
                                        std::string &errorMessage);
 
-        /** Prepare signed node transaction as JSON packet to send to network to register the node has nodeAddress.
-         *
-         *
-         *
-         * */
+        /**
+         * Prepare signed node transaction as JSON packet to send to network to register the node has nodeAddress.
+          *
+          * @param privateKey
+          * @param nodeAddress
+          * @param blockId
+          * @param transactionId
+          * @param asset
+          * @param amount
+          * @param transaction
+          * @param digest
+          * @param errorMessage
+          * @return
+          */
         light::result prepare_register_node(const std::string &privateKey,
                                             const std::string &nodeAddress,
 
@@ -151,10 +212,18 @@ namespace milecsa {
 
 
 
-        /** Prepare signed transaction as JSON packet to send to network to dismiss a node associated the keys pair.
-         *
-         *
-         * */
+        /**
+         * Prepare signed transaction as JSON packet to send to network to dismiss a node associated the keys pair.
+          *
+          * @param privateKey
+          * @param nodeAddress
+          * @param blockId
+          * @param transactionId
+          * @param transaction
+          * @param digest
+          * @param errorMessage
+          * @return
+          */
         light::result prepare_unregister_node(const std::string &privateKey,
                                               const std::string &nodeAddress,
 
@@ -166,10 +235,19 @@ namespace milecsa {
                                               std::string &digest,
                                               std::string &errorMessage);
 
-        /** Prepare signed transaction as JSON packet to send to network vote for current asset rate.
-         *
-         *
-         * */
+        /**
+         * Prepare signed transaction as JSON packet to send to network vote for current asset rate.
+          *
+          * @param privateKey
+          * @param blockId
+          * @param transactionId
+          * @param asset
+          * @param rate
+          * @param transaction
+          * @param digest
+          * @param errorMessage
+          * @return
+          */
         light::result prepare_vote_for_asstes_rate(const std::string &privateKey,
 
                                                    const std::string &blockId,

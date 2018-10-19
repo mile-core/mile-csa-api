@@ -1,37 +1,29 @@
+project(${PROJECT_LIB} VERSION 1.0.0)
+
+set(CMAKE_INSTALL_PREFIX "/usr/local/${PROJECT_LIB}")
+
 include_directories (
-        ../include
-        ../vendor/crypto
-        ../vendor/ed25519/src
-        ../vendor/nlohmann/
+        ${CMAKE_SOURCE_DIR}/include
+        ${CMAKE_SOURCE_DIR}/vendor/crypto
+        ${CMAKE_SOURCE_DIR}/vendor/ed25519/src
+        ${CMAKE_SOURCE_DIR}/vendor/nlohmann/
 )
 
-list(APPEND SOURCES
+FILE(GLOB INCLUDE_FILES
+        ${CMAKE_SOURCE_DIR}/vendor/nlohmann/*.hpp
+        ${CMAKE_SOURCE_DIR}/vendor/crypto/*.h
+        ${CMAKE_SOURCE_DIR}/vendor/crypto/*.hpp
+        ${CMAKE_SOURCE_DIR}/vendor/ed25519/src/*.h
+        ${CMAKE_SOURCE_DIR}/include/*.hpp
+        )
 
-        ../vendor/ed25519/src/add_scalar.c
-        ../vendor/ed25519/src/fe.c
-        ../vendor/ed25519/src/ge.c
-        ../vendor/ed25519/src/key_exchange.c
-        ../vendor/ed25519/src/keypair.c
-        ../vendor/ed25519/src/sc.c
-        ../vendor/ed25519/src/seed.c
-        ../vendor/ed25519/src/sha512.c
-        ../vendor/ed25519/src/sign.c
-        ../vendor/ed25519/src/verify.c
-        ../vendor/crypto/base58.cpp
-        ../vendor/crypto/crypto.cpp
-        ../vendor/crypto/ed25519_ext.cpp
-        ../vendor/crypto/sha3.c
-
-        ../src/milecsa_crypto_types.cpp
-        ../src/milecsa_pair.cpp
-        ../src/milecsa_pair_wrapper.cpp
-        ../src/milecsa_utils.cpp
-        ../src/transactions_wrapper/milecsa_emission.cpp
-        ../src/transactions_wrapper/milecsa_nodes.cpp
-        ../src/transactions_wrapper/milecsa_transfer.cpp
-        ../src/transactions_wrapper/milecsa_voting.cpp
-)
-
+FILE(GLOB SOURCES
+        ${CMAKE_SOURCE_DIR}/vendor/crypto/*.cpp
+        ${CMAKE_SOURCE_DIR}/vendor/crypto/*.c
+        ${CMAKE_SOURCE_DIR}/vendor/ed25519/src/*.c
+        ${CMAKE_SOURCE_DIR}/src/*.cpp
+        ${CMAKE_SOURCE_DIR}/src/transactions_wrapper/*.cpp
+        )
 
 set (BOOST_COMPONENTS system)
 
@@ -56,18 +48,40 @@ target_link_libraries (
 target_include_directories(
         ${PROJECT_LIB}
         PUBLIC
-        ../vendor/nlohmann
         ../include
+        ../vendor/nlohmann
         ../vendor/crypto
 )
 
-FILE(GLOB INCLUDE_FILES
-        ../vendor/nlohmann/*.hpp
-        ../vendor/crypto/*.h
-        ../vendor/crypto/*.hpp
-        ../vendor/ed25519/src/*.h
-        ../include/*.hpp
-        )
+set(config_install_dir "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
+set(generated_dir "${CMAKE_CURRENT_BINARY_DIR}/generated")
+
+# Configuration
+set(version_config "${generated_dir}/${PROJECT_NAME}ConfigVersion.cmake")
+set(project_config "${generated_dir}/${PROJECT_NAME}Config.cmake")
+set(TARGETS_EXPORT_NAME "${PROJECT_NAME}")
+set(namespace "${PROJECT_NAME}::")
+
+include(CMakePackageConfigHelpers)
+
+write_basic_package_version_file(
+        "${version_config}" COMPATIBILITY SameMajorVersion
+)
+
+configure_package_config_file(
+        "cmake/Config.cmake.in"
+        "${project_config}"
+        INSTALL_DESTINATION "${config_install_dir}"
+)
 
 install(FILES ${INCLUDE_FILES} DESTINATION include)
-install(TARGETS ${PROJECT_LIB} DESTINATION lib)
+install(TARGETS ${PROJECT_LIB}
+        DESTINATION lib)
+install(FILES ${project_config} ${version_config} DESTINATION lib/cmake/milecsa)
+
+install(
+        FILES "${project_config}" "${version_config}"
+        DESTINATION "${config_install_dir}"
+)
+
+install(FILES cmake/${PROJECT_LIB}.cmake DESTINATION lib/cmake/milecsa)

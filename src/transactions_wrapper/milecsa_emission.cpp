@@ -42,13 +42,13 @@ milecsa::light::result milecsa::transaction::prepare_emission(const std::string 
         return milecsa::light::result::FAIL;
     }
 
-    uint64_t trx_id = transactionId == default_transaction ? (uint64_t)rand() : transactionId;
+    uint64_t trx_id = transactionId == default_transaction_id ? (uint64_t)rand() : transactionId;
 
     if(auto emission = milecsa::transaction::Emission<json>::CreateRequest(
             *keyPair,
             dstWalletPublicKey,
             bid,
-            transactionId,
+            trx_id,
             assetCode,
             amount,
             description,

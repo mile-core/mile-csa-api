@@ -41,12 +41,12 @@ milecsa::light::result milecsa::transaction::prepare_transfer(const std::string 
         return milecsa::light::result::FAIL;
     }
 
-    uint64_t trx_id = transactionId == default_transaction ? (uint64_t)rand() : transactionId;
+    uint64_t trx_id = transactionId == default_transaction_id ? (uint64_t)rand() : transactionId;
     if (auto transfer = milecsa::transaction::Transfer<json>::CreateRequest(
             *keyPair,
             dstWalletPublicKey,
             bid,
-            transactionId,
+            trx_id,
             assetCode,
             amount,
             description,

@@ -40,13 +40,13 @@ milecsa::light::result milecsa::transaction::prepare_register_node(const std::st
         return milecsa::light::result::FAIL;
     }
 
-    uint64_t trx_id = transactionId == default_transaction ? (uint64_t)rand() : transactionId;
+    uint64_t trx_id = transactionId == default_transaction_id ? (uint64_t)rand() : transactionId;
 
     if(auto node = milecsa::transaction::Node<json>::CreateRegisterRequest(
             *keyPair,
             nodeAddress,
             bid,
-            transactionId,
+            trx_id,
             assetCode,
             amount,
             error)){
@@ -88,13 +88,13 @@ milecsa::light::result milecsa::transaction::prepare_unregister_node(const std::
         return milecsa::light::result::FAIL;
     }
 
-    uint64_t trx_id = transactionId == default_transaction ? (uint64_t)rand() : transactionId;
+    uint64_t trx_id = transactionId == default_transaction_id ? (uint64_t)rand() : transactionId;
 
     if(auto node = milecsa::transaction::Node<json>::CreateUnregisterRequest(
             *keyPair,
             nodeAddress,
             bid,
-            transactionId,
+            trx_id,
             error)){
 
         if (auto trx = node->get_body()) transaction = trx->dump();

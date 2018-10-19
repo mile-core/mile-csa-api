@@ -64,4 +64,4 @@ if (nodejs)
     )
 endif ()
 
-SET(CMAKE_INSTALL_PREFIX "/usr/local/milecsa")
+set(CMAKE_INSTALL_PREFIX "/usr/local/${PROJECT_LIB}")

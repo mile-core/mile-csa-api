@@ -37,12 +37,12 @@ milecsa::light::result milecsa::transaction::prepare_vote_for_asstes_rate(const 
         return milecsa::light::result::FAIL;
     }
 
-    uint64_t trx_id = transactionId == default_transaction ? (uint64_t)rand() : transactionId;
+    uint64_t trx_id = transactionId == default_transaction_id ? (uint64_t)rand() : transactionId;
 
     if(auto emission = milecsa::transaction::Vote<json>::CreateRequest(
             *keyPair,
             bid,
-            transactionId,
+            trx_id,
             assetCode,
             rate,
             error)){
