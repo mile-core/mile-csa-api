@@ -18,8 +18,8 @@ struct Vote: public MIleTestTransaction {
         std::string digest;
 
         if (milecsa::transaction::prepare_vote_for_asstes_rate(
-                keyPair,
-                0,
+                keyPair.private_key,
+                "0",
                 0,
                 0,
                 "10.0",

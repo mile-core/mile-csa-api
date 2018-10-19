@@ -9,89 +9,93 @@
 #include "crypto.h"
 #include "milecsa_result.hpp"
 #include "milecsa_utils.hpp"
+#include "milecsa_pair.hpp"
 
-milecsa::result milecsa::keys::generate(
-        milecsa::keys::Pair &keysPair,
+milecsa::light::result milecsa::keys::generate(
+        milecsa::light::Pair &keysPair,
         std::string &errorMessage) {
 
-    auto result = milecsa::result::FAIL;
+    auto result = milecsa::light::result::FAIL;
     if (auto pair =
             milecsa::keys::Pair::Random([&errorMessage, &result](
                     milecsa::result code,
                     std::string error) mutable -> void {
-                result = code;
+                result = (milecsa::light::result)code;
                 errorMessage = error;
             }))
     {
-        keysPair = *pair;
-        return milecsa::result::OK;
+        keysPair.private_key = pair->get_private_key().encode();
+        keysPair.public_key = pair->get_public_key().encode();
+        return milecsa::light::result::OK;
     }
     else {
         return result;
     }
 }
 
-milecsa::result milecsa::keys::generate_from_private_key(
-        milecsa::keys::Pair &keysPair,
+milecsa::light::result milecsa::keys::generate_from_private_key(
+        milecsa::light::Pair &keysPair,
         const std::string &privateKey,
         std::string &errorMessage)
 {
 
-    auto result = milecsa::result::FAIL;
+    auto result = milecsa::light::result::FAIL;
     if (auto pair =
             milecsa::keys::Pair::FromPrivateKey(privateKey, [&errorMessage, &result](
                     milecsa::result code,
                     const std::string &error) mutable -> void {
-                result = code;
+                result = (milecsa::light::result)code;
                 errorMessage = error;
             }))
     {
-        keysPair = *pair;
-        return milecsa::result::OK;
+        keysPair.private_key = pair->get_private_key().encode();
+        keysPair.public_key = pair->get_public_key().encode();
+        return milecsa::light::result::OK;
     }
     else {
         return result;
     }
 }
 
-milecsa::result milecsa::keys::generate_with_secret(
-        milecsa::keys::Pair &keysPair,
+milecsa::light::result milecsa::keys::generate_with_secret(
+        milecsa::light::Pair &keysPair,
         const std::string &phrase,
         std::string &errorMessage)
 {
 
-    auto result = milecsa::result::FAIL;
+    auto result = milecsa::light::result::FAIL;
     if (auto pair =
             milecsa::keys::Pair::WithSecret(phrase, [&errorMessage, &result](
                     milecsa::result code,
                     const std::string &error) mutable -> void {
-                result = code;
+                result = (milecsa::light::result)code;
                 errorMessage = error;
             }))
     {
-        keysPair = *pair;
-        return milecsa::result::OK;
+        keysPair.private_key = pair->get_private_key().encode();
+        keysPair.public_key = pair->get_public_key().encode();
+        return milecsa::light::result::OK;
     }
     else {
         return result;
     }
 }
 
-milecsa::result milecsa::keys::validate_public_key(
+milecsa::light::result milecsa::keys::validate_public_key(
         const std::string &publicKey,
         std::string &errorMessage){
 
-    milecsa::result result;
+    milecsa::light::result result;
 
     if (milecsa::keys::Pair::ValidatePublicKey(publicKey, [&errorMessage, &result](
             milecsa::result code,
             const std::string &error) mutable -> void {
 
-        result = code;
+        result = (milecsa::light::result)code;
         errorMessage = error;
 
     })) {
-        return  milecsa::result::OK;
+        return  milecsa::light::result::OK;
     }
     else {
         return result;
@@ -99,40 +103,29 @@ milecsa::result milecsa::keys::validate_public_key(
 }
 
 
-milecsa::result milecsa::keys::validate_private_key(const std::string &privateKey, std::string &errorMessage){
+milecsa::light::result milecsa::keys::validate_private_key(const std::string &privateKey, std::string &errorMessage){
 
-    milecsa::result result;
+    milecsa::light::result result;
 
     if (milecsa::keys::Pair::ValidatePrivateKey(privateKey, [&errorMessage, &result](
             milecsa::result code,
             const std::string &error) mutable -> void {
 
-        result = code;
+        result = (milecsa::light::result)code;
         errorMessage = error;
 
     })) {
-        return  milecsa::result::OK;
+        return  milecsa::light::result::OK;
     }
     else {
         return result;
     }
 }
 
-milecsa::result milecsa::keys::validate(const milecsa::keys::Pair &keysPair, std::string &errorMessage){
+milecsa::light::result milecsa::keys::validate(const milecsa::light::Pair &keysPair, std::string &errorMessage){
 
-    milecsa::result result;
-
-    if (milecsa::keys::Pair::Validate(keysPair, [&errorMessage, &result](
-            milecsa::result code,
-            const std::string &error) mutable -> void {
-
-        result = code;
-        errorMessage = error;
-
-    })) {
-        return  milecsa::result::OK;
-    }
-    else {
+    milecsa::light::result result = milecsa::keys::validate_public_key(keysPair.public_key, errorMessage);
+    if (result != milecsa::light::result::OK)
         return result;
-    }
+    return milecsa::keys::validate_private_key(keysPair.private_key, errorMessage);
 }

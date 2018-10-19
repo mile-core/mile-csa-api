@@ -7,28 +7,41 @@
 
 using json = nlohmann::json;
 
-milecsa::result milecsa::transaction::prepare_vote_for_asstes_rate(const milecsa::keys::Pair &keyPair,
+milecsa::light::result milecsa::transaction::prepare_vote_for_asstes_rate(const std::string &privateKey,
 
-                                                                 const uint256_t blockId,
-                                                                 const uint64_t  transactionId,
+                                                                   const std::string &blockId,
+                                                                   const uint64_t  transactionId,
 
-                                                                 unsigned short assetCode,
-                                                                 const std::string &rate,
+                                                                   unsigned short assetCode,
+                                                                   const std::string &rate,
 
-                                                                 std::string &transaction,
-                                                                 std::string &digest,
-                                                                 std::string &errorMessage)
+                                                                   std::string &transaction,
+                                                                   std::string &digest,
+                                                                   std::string &errorMessage)
 {
-    milecsa::result result;
+    milecsa::light::result result;
 
     auto error = [&errorMessage, &result](milecsa::result code, const std::string &error) mutable -> void {
-        result = code;
+        result = (milecsa::light::result)code;
         errorMessage = error;
     };
 
+    auto keyPair = milecsa::keys::Pair::FromPrivateKey(privateKey, error);
+    if (!keyPair)
+        return milecsa::light::result::FAIL;
+
+    uint256_t bid;
+
+    if(!StringToUInt256(blockId, bid, false)) {
+        errorMessage = "block could not be converted to uint256_t";
+        return milecsa::light::result::FAIL;
+    }
+
+    uint64_t trx_id = transactionId == default_transaction ? (uint64_t)rand() : transactionId;
+
     if(auto emission = milecsa::transaction::Vote<json>::CreateRequest(
-            keyPair,
-            blockId,
+            *keyPair,
+            bid,
             transactionId,
             assetCode,
             rate,
@@ -37,7 +50,7 @@ milecsa::result milecsa::transaction::prepare_vote_for_asstes_rate(const milecsa
         if (auto trx = emission->get_body()) transaction = trx->dump();
         if (auto dgst = emission->get_digest()) digest = *dgst;
 
-        return milecsa::result::OK;
+        return milecsa::light::result::OK;
     }
 
     return result;

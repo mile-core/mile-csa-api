@@ -9,12 +9,12 @@ struct MileTest {
         BOOST_TEST_MESSAGE("Setup "+name);
     }
 
-    void print_key_pair(milecsa::keys::Pair *keyPair) {
+    void print_key_pair(milecsa::light::Pair *keyPair) {
         std::string mess = "Public key: ";
-        mess += keyPair->get_public_key().encode();
+        mess += keyPair->public_key;
         BOOST_TEST_MESSAGE(mess);
         mess = "Private key: ";
-        mess += keyPair->get_private_key().encode();
+        mess += keyPair->private_key;
         BOOST_TEST_MESSAGE(mess);
     }
 

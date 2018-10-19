@@ -9,7 +9,7 @@ struct Generator: public MileTest
     Generator():MileTest("Generator"){}
 
     bool generate() {
-        milecsa::keys::Pair keyPair;
+        milecsa::light::Pair keyPair;
 
         if (milecsa::keys::generate(keyPair, errorDescription)) {
             BOOST_TEST_MESSAGE("Error happened in Pair");
@@ -22,7 +22,7 @@ struct Generator: public MileTest
 
     bool generate_by_secret() {
 
-        milecsa::keys::Pair keyPair;
+        milecsa::light::Pair keyPair;
 
         if (milecsa::keys::generate_with_secret(keyPair, "test string", errorDescription))
         {
@@ -37,17 +37,17 @@ struct Generator: public MileTest
     }
 
     bool validate() {
-        milecsa::keys::Pair initialKeyPair;
+        milecsa::light::Pair initialKeyPair;
 
         if (milecsa::keys::generate(initialKeyPair, errorDescription)) {
             BOOST_TEST_MESSAGE("Error happened in Pair");
             return false;
         } else {
-            milecsa::keys::Pair keyPair;
+            milecsa::light::Pair keyPair;
 
             if(milecsa::keys::generate_from_private_key(
                     keyPair,
-                    initialKeyPair.get_private_key().encode(),
+                    initialKeyPair.private_key,
                     errorDescription)) {
                 BOOST_TEST_MESSAGE("Error happened in generate_from_private_key");
                 return false;

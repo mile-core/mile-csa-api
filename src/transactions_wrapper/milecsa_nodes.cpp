@@ -7,11 +7,12 @@
 
 using json = nlohmann::json;
 
-milecsa::result milecsa::transaction::prepare_register_node(const milecsa::keys::Pair &keyPair,
+milecsa::light::result milecsa::transaction::prepare_register_node(const std::string &privateKey,
                                                             const std::string &nodeAddress,
 
-                                                            const uint256_t blockId,
+                                                            const std::string &blockId,
                                                             const uint64_t  transactionId,
+
                                                             unsigned short assetCode,
                                                             const std::string &amount,
         //
@@ -21,17 +22,30 @@ milecsa::result milecsa::transaction::prepare_register_node(const milecsa::keys:
                                                             std::string &digest,
                                                             std::string &errorMessage)
 {
-    milecsa::result result;
+    milecsa::light::result result;
 
     auto error = [&errorMessage, &result](milecsa::result code, const std::string &error) mutable -> void {
-        result = code;
+        result = (milecsa::light::result)code;
         errorMessage = error;
     };
 
+    auto keyPair = milecsa::keys::Pair::FromPrivateKey(privateKey, error);
+    if (!keyPair)
+        return milecsa::light::result::FAIL;
+
+    uint256_t bid;
+
+    if(!StringToUInt256(blockId, bid, false)) {
+        errorMessage = "block could not be converted to uint256_t";
+        return milecsa::light::result::FAIL;
+    }
+
+    uint64_t trx_id = transactionId == default_transaction ? (uint64_t)rand() : transactionId;
+
     if(auto node = milecsa::transaction::Node<json>::CreateRegisterRequest(
-            keyPair,
+            *keyPair,
             nodeAddress,
-            blockId,
+            bid,
             transactionId,
             assetCode,
             amount,
@@ -40,40 +54,53 @@ milecsa::result milecsa::transaction::prepare_register_node(const milecsa::keys:
         if (auto trx = node->get_body()) transaction = trx->dump();
         if (auto dgst = node->get_digest()) digest = *dgst;
 
-        return milecsa::result::OK;
+        return milecsa::light::result::OK;
     }
 
     return result;
 }
 
-milecsa::result milecsa::transaction::prepare_unregister_node(const milecsa::keys::Pair &keyPair,
+milecsa::light::result milecsa::transaction::prepare_unregister_node(const std::string &privateKey,
                                                               const std::string &nodeAddress,
 
-                                                              const uint256_t blockId,
+                                                              const std::string &blockId,
                                                               const uint64_t  transactionId,
 
                                                               std::string &transaction,
                                                               std::string &digest,
                                                               std::string &errorMessage)
 {
-    milecsa::result result;
+    milecsa::light::result result;
 
     auto error = [&errorMessage, &result](milecsa::result code, const std::string &error) mutable -> void {
-        result = code;
+        result = (milecsa::light::result)code;
         errorMessage = error;
     };
 
+    auto keyPair = milecsa::keys::Pair::FromPrivateKey(privateKey, error);
+    if (!keyPair)
+        return milecsa::light::result::FAIL;
+
+    uint256_t bid;
+
+    if(!StringToUInt256(blockId, bid, false)) {
+        errorMessage = "block could not be converted to uint256_t";
+        return milecsa::light::result::FAIL;
+    }
+
+    uint64_t trx_id = transactionId == default_transaction ? (uint64_t)rand() : transactionId;
+
     if(auto node = milecsa::transaction::Node<json>::CreateUnregisterRequest(
-            keyPair,
+            *keyPair,
             nodeAddress,
-            blockId,
+            bid,
             transactionId,
             error)){
 
         if (auto trx = node->get_body()) transaction = trx->dump();
         if (auto dgst = node->get_digest()) digest = *dgst;
 
-        return milecsa::result::OK;
+        return milecsa::light::result::OK;
     }
 
     return result;

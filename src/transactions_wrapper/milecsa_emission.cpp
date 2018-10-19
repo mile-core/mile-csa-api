@@ -7,34 +7,47 @@
 
 using json = nlohmann::json;
 
-milecsa::result milecsa::transaction::prepare_emission(const milecsa::keys::Pair &keyPair,
-                                                       const std::string &dstWalletPublicKey,
+milecsa::light::result milecsa::transaction::prepare_emission(const std::string &privateKey,
+                                                              const std::string &dstWalletPublicKey,
 
-                                                       const uint256_t blockId,
-                                                       const uint64_t  transactionId,
+                                                              const std::string &blockId,
+                                                              const uint64_t  transactionId,
 
-                                                       unsigned short assetCode,
-                                                       const std::string &amount,
-                                                       const std::string &description,
-                                                       const std::string &fee,
+                                                              unsigned short assetCode,
+                                                              const std::string &amount,
+                                                              const std::string &description,
+                                                              const std::string &fee,
         //
         // Signed json
         //
-                                                       std::string &transaction,
-                                                       std::string &digest,
-                                                       std::string &errorMessage) {
+                                                              std::string &transaction,
+                                                              std::string &digest,
+                                                              std::string &errorMessage) {
 
-    milecsa::result result;
+    milecsa::light::result result;
 
     auto error = [&errorMessage, &result](milecsa::result code, const std::string &error) mutable -> void {
-        result = code;
+        result = (milecsa::light::result)code;
         errorMessage = error;
     };
 
+    auto keyPair = milecsa::keys::Pair::FromPrivateKey(privateKey, error);
+    if (!keyPair)
+        return milecsa::light::result::FAIL;
+
+    uint256_t bid;
+
+    if(!StringToUInt256(blockId, bid, false)) {
+        errorMessage = "block could not be converted to uint256_t";
+        return milecsa::light::result::FAIL;
+    }
+
+    uint64_t trx_id = transactionId == default_transaction ? (uint64_t)rand() : transactionId;
+
     if(auto emission = milecsa::transaction::Emission<json>::CreateRequest(
-            keyPair,
+            *keyPair,
             dstWalletPublicKey,
-            blockId,
+            bid,
             transactionId,
             assetCode,
             amount,
@@ -45,7 +58,7 @@ milecsa::result milecsa::transaction::prepare_emission(const milecsa::keys::Pair
         if (auto trx = emission->get_body()) transaction = trx->dump();
         if (auto dgst = emission->get_digest()) digest = *dgst;
 
-        return milecsa::result::OK;
+        return milecsa::light::result::OK;
     }
 
     return result;

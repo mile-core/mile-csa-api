@@ -18,9 +18,9 @@ struct Node: public MIleTestTransaction {
         std::string digest;
 
         if (milecsa::transaction::prepare_register_node(
-                keyPair,
+                keyPair.private_key,
                 nodeAddress,
-                0,
+                "0",
                 0,
                 0,
                 "1000",
@@ -42,9 +42,9 @@ struct Node: public MIleTestTransaction {
         std::string digest;
 
         if(milecsa::transaction::prepare_unregister_node(
-                keyPair,
+                keyPair.private_key,
                 nodeAddress,
-                0,
+                "0",
                 0,
                 transaction,
                 digest,

@@ -21,8 +21,10 @@ struct Wallet: public MIleTestTransaction {
 
     bool simple_test() {
 
+        auto pair = milecsa::keys::Pair::FromPrivateKey(keyPair.private_key);
+
         auto t = transfer::CreateRequest(
-                keyPair,
+                *pair,
                 destination,
                 0, // block id
                 0, // trx id
@@ -32,7 +34,7 @@ struct Wallet: public MIleTestTransaction {
         BOOST_TEST_MESSAGE("Simple transaction class name: " + std::string(typeid(t).name()));
 
         if (auto trx_body = transfer::CreateRequest(
-                keyPair,
+                *pair,
                 destination,
                 0, // block id
                 0, // trx id
@@ -53,9 +55,9 @@ struct Wallet: public MIleTestTransaction {
         std::string digest;
 
         if (milecsa::transaction::prepare_transfer(
-                keyPair,
+                keyPair.private_key,
                 destination,
-                0,
+                "0",
                 0,
                 1,
                 "1000",

@@ -12,7 +12,7 @@ struct MIleTestTransaction: public MileTest  {
         }
     }
 
-    milecsa::keys::Pair keyPair;
+    milecsa::light::Pair keyPair;
     const std::string nodeAddress = "2n9z7C3f9SdCrLuCkekxFRgaFq8eoJMizRzbJDpxGoXnYgTaoz";
 
 };

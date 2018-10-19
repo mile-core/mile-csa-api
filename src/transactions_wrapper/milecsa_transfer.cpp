@@ -7,10 +7,10 @@
 
 using json = nlohmann::json;
 
-milecsa::result milecsa::transaction::prepare_transfer(const milecsa::keys::Pair &keyPair,
+milecsa::light::result milecsa::transaction::prepare_transfer(const std::string &privateKey,
 													   const std::string &dstWalletPublicKey,
 
-													   const uint256_t blockId,
+													   const std::string &blockId,
 													   const uint64_t  transactionId,
 
 													   unsigned short assetCode,
@@ -23,17 +23,29 @@ milecsa::result milecsa::transaction::prepare_transfer(const milecsa::keys::Pair
 													   std::string &transaction,
 													   std::string &digest,
 													   std::string &errorMessage) {
-    milecsa::result result;
+    milecsa::light::result result;
 
     auto error = [&errorMessage, &result](milecsa::result code, const std::string &error) mutable -> void {
-        result = code;
+        result = (milecsa::light::result)code;
         errorMessage = error;
     };
 
+    auto keyPair = milecsa::keys::Pair::FromPrivateKey(privateKey, error);
+    if (!keyPair)
+        return milecsa::light::result::FAIL;
+
+    uint256_t bid;
+
+    if(!StringToUInt256(blockId, bid, false)) {
+        errorMessage = "block could not be converted to uint256_t";
+        return milecsa::light::result::FAIL;
+    }
+
+    uint64_t trx_id = transactionId == default_transaction ? (uint64_t)rand() : transactionId;
     if (auto transfer = milecsa::transaction::Transfer<json>::CreateRequest(
-            keyPair,
+            *keyPair,
             dstWalletPublicKey,
-            blockId,
+            bid,
             transactionId,
             assetCode,
             amount,
@@ -44,7 +56,7 @@ milecsa::result milecsa::transaction::prepare_transfer(const milecsa::keys::Pair
         if (auto trx = transfer->get_body()) transaction = trx->dump();
         if (auto dgst = transfer->get_digest()) digest = *dgst;
 
-        return milecsa::result::OK;
+        return milecsa::light::result::OK;
     }
 
     return result;

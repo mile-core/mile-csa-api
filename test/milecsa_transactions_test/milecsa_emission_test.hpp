@@ -19,9 +19,9 @@ struct Emission: public MIleTestTransaction {
         std::string digest;
 
         if (milecsa::transaction::prepare_emission(
-                keyPair,
+                keyPair.private_key,
                 "2n9z7C3f9SdCrLuCkekxFRgaFq8eoJMizRzbJDpxGoXnYgTaoz",
-                0,
+                "0",
                 0,
                 1,
                 "1000",
