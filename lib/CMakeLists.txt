@@ -1,28 +1,28 @@
 project(${PROJECT_LIB} VERSION 1.0.0)
 
-set(CMAKE_INSTALL_PREFIX "/usr/local/${PROJECT_LIB}")
+set(CMAKE_INSTALL_PREFIX /usr/local/${PROJECT_LIB})
 
 include_directories (
-        ${CMAKE_SOURCE_DIR}/include
-        ${CMAKE_SOURCE_DIR}/vendor/crypto
-        ${CMAKE_SOURCE_DIR}/vendor/ed25519/src
-        ${CMAKE_SOURCE_DIR}/vendor/nlohmann/
+        ../include
+        ../vendor/crypto
+        ../vendor/ed25519/src
+        ../vendor/nlohmann/
 )
 
 FILE(GLOB INCLUDE_FILES
-        ${CMAKE_SOURCE_DIR}/vendor/nlohmann/*.hpp
-        ${CMAKE_SOURCE_DIR}/vendor/crypto/*.h
-        ${CMAKE_SOURCE_DIR}/vendor/crypto/*.hpp
-        ${CMAKE_SOURCE_DIR}/vendor/ed25519/src/*.h
-        ${CMAKE_SOURCE_DIR}/include/*.hpp
+        ../vendor/nlohmann/*.hpp
+        ../vendor/crypto/*.h
+        ../vendor/crypto/*.hpp
+        ../vendor/ed25519/src/*.h
+        ../include/*.hpp
         )
 
 FILE(GLOB SOURCES
-        ${CMAKE_SOURCE_DIR}/vendor/crypto/*.cpp
-        ${CMAKE_SOURCE_DIR}/vendor/crypto/*.c
-        ${CMAKE_SOURCE_DIR}/vendor/ed25519/src/*.c
-        ${CMAKE_SOURCE_DIR}/src/*.cpp
-        ${CMAKE_SOURCE_DIR}/src/transactions_wrapper/*.cpp
+        ../vendor/crypto/*.cpp
+        ../vendor/crypto/*.c
+        ../vendor/ed25519/src/*.c
+        ../src/*.cpp
+        ../src/transactions_wrapper/*.cpp
         )
 
 set (BOOST_COMPONENTS system)
