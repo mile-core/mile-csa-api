@@ -14,7 +14,18 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
 
+    //
+    // block id should be getting from blockchain node, for example as json-rpc request by curl
+    // curl  -H "Content-Type: application/json"  -d '{"id":0,"jsonrpc":"2.0","method":"get-current-block-id","version":0.0}' http://node002.testnet.mile.global/v1/api
+    //
+    // or any another way
+    //
+    //
     string block_id = "34923";
+
+    //
+    // trx id can be create for user reason or can be default
+    //
     uint64_t trx_id = default_transaction_id;
 
     Pair    pair;
@@ -44,6 +55,9 @@ int main(int argc, char *argv[]) {
     std::string fee;
     std::string digest;
 
+    //
+    // Build signed transfer transaction
+    //
     if (milecsa::transaction::prepare_transfer(
             pair.private_key,          // "from" private key
             destination.public_key,    // "to" public key
