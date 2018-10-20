@@ -13,7 +13,7 @@
 #ifdef WITH_CURL
 #include <curl/curl.h>
 #else
-#error "curl library not configured"
+#error "curl library has not been configured"
 #endif
 
 using milecsa::light::Pair;
