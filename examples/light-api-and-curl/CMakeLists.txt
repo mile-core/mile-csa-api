@@ -11,7 +11,7 @@ endif(CCACHE_FOUND)
 set(PROJECT send-1xdr)
 
 find_package(milecsa CONFIG REQUIRED)
-find_package(curl)
+find_package(CURL)
 
 include_directories(
         ${milecsa_INCLUDE_PATH}
