@@ -116,7 +116,7 @@ namespace milecsa{
                 calculatorClosure(digestCalculator_);
 
                 digestCalculator_.Finalize(digest_);
-                signer_.SignDigest(digest_, signature_);
+                signer_.SignDigest(digest_, signature_)  ;
 
                 parameters_ =
                         {
