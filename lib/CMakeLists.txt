@@ -9,12 +9,15 @@ include_directories (
         ../vendor/nlohmann/
 )
 
-FILE(GLOB INCLUDE_FILES
+FILE(GLOB PUBLIC_INCLUDE_FILES
         ../vendor/nlohmann/*.hpp
-        ../vendor/crypto/*.h
-        ../vendor/crypto/*.hpp
-        ../vendor/ed25519/src/*.h
+        ../vendor/crypto/crypto.h
         ../include/*.hpp
+        )
+
+FILE(GLOB INCLUDE_FILES
+        ../vendor/crypto/*.h
+        ${PUBLIC_INCLUDE_FILES}
         )
 
 FILE(GLOB SOURCES
@@ -74,14 +77,7 @@ configure_package_config_file(
         INSTALL_DESTINATION "${config_install_dir}"
 )
 
-install(FILES ${INCLUDE_FILES} DESTINATION include)
-install(TARGETS ${PROJECT_LIB}
-        DESTINATION lib)
-install(FILES ${project_config} ${version_config} DESTINATION lib/cmake/milecsa)
-
-install(
-        FILES "${project_config}" "${version_config}"
-        DESTINATION "${config_install_dir}"
-)
-
-install(FILES cmake/${PROJECT_LIB}.cmake DESTINATION lib/cmake/milecsa)
+install(TARGETS ${PROJECT_LIB}   DESTINATION lib)
+install(FILES   ${PUBLIC_INCLUDE_FILES} DESTINATION include)
+install(FILES   ${project_config} ${version_config} DESTINATION lib/cmake/milecsa)
+install(FILES   cmake/${PROJECT_LIB}.cmake DESTINATION lib/cmake/milecsa)

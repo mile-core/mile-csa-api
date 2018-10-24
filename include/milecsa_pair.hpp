@@ -11,7 +11,6 @@
 #include <optional>
 
 #include "crypto.h"
-#include "crypto_types.h"
 #include "milecsa_result.hpp"
 #include "milecsa_error.hpp"
 
