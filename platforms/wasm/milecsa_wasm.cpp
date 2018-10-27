@@ -1,7 +1,7 @@
 #include <string>
 #include <emscripten/bind.h>
 #include "crypto_types.h"
-#include "crypto.h"
+#include "milecsa_crypto.h"
 #include "milecsa_light_api.hpp"
 
 using namespace emscripten;

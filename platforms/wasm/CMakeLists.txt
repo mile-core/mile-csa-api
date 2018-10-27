@@ -64,14 +64,14 @@ list(APPEND WASM_SOURCES
         ../../vendor/ed25519/src/sign.c
         ../../vendor/ed25519/src/verify.c
         ../../vendor/crypto/base58.cpp
-        ../../vendor/crypto/crypto.cpp
+        ../../vendor/crypto/milecsa_crypto.cpp
         ../../vendor/crypto/ed25519_ext.cpp
         ../../vendor/crypto/sha3.c
 
         ../../src/milecsa_pair_wrapper.cpp
         ../../src/milecsa_pair.cpp
         ../../src/milecsa_utils.cpp
-        ../../src/milecsa_crypto_types.cpp
+        ../../vendor/crypto/milecsa_crypto_types.cpp
         ../../src/transactions_wrapper/milecsa_transfer.cpp
         ../../src/transactions_wrapper/milecsa_emission.cpp
 

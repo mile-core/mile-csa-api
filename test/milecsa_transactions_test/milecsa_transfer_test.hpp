@@ -6,40 +6,37 @@
 #define MILECSA_MILECSA_TRANSFER_TEST_HPP
 
 #include "milecsa.hpp"
-#include "milecsa_light_api.hpp"
 #include "MIleTestTransaction.hpp"
 #include "json.hpp"
 
-using json = nlohmann::json ;
+using json = nlohmann::json;
 using transfer = milecsa::transaction::Transfer<json>;
 
 struct Wallet: public MIleTestTransaction {
 
     Wallet():MIleTestTransaction("Wallet"){}
 
-    const std::string destination = "2n9z7C3f9SdCrLuCkekxFRgaFq8eoJMizRzbJDpxGoXnYgTaoz";
-
     bool simple_test() {
 
-        auto pair = milecsa::keys::Pair::FromPrivateKey(keyPair.private_key);
+        auto pair = milecsa::keys::Pair::FromPrivateKey(keyPair->get_private_key().encode());
 
         auto t = transfer::CreateRequest(
                 *pair,
-                destination,
+                destination->get_public_key().encode(),
                 0, // block id
                 0, // trx id
-                0, // asset code
-                "10");
+                milecsa::assets::XDR, // asset code
+                10);
 
         BOOST_TEST_MESSAGE("Simple transaction class name: " + std::string(typeid(t).name()));
 
         if (auto trx_body = transfer::CreateRequest(
                 *pair,
-                destination,
+                destination->get_public_key().encode(),
                 0, // block id
                 0, // trx id
-                0, // asset code
-                "1000")->get_body()){
+                milecsa::assets::XDR, // asset code
+                1000)->get_body()){
             BOOST_TEST_MESSAGE("Simple transaction : " + trx_body->dump());
             return true;
         }
@@ -50,34 +47,26 @@ struct Wallet: public MIleTestTransaction {
 
     bool test() {
 
-        std::string transaction;
-        std::string fee;
-        std::string digest;
+        uint256_t bid   = 0;
+        uint64_t trx_id =  (uint64_t)rand();
 
-        if (milecsa::transaction::prepare_transfer(
-                keyPair.private_key,
-                destination,
-                "0",
-                0,
-                1,
-                "1000",
-                "memo",
-                fee,
+        if (auto transfer = milecsa::transaction::Transfer<json>::CreateRequest(
+            *keyPair,
+            destination->get_public_key().encode(),
+            bid,
+            trx_id,
+            milecsa::assets::XDR,
+            1.1f,
+            0.0f,
+            "memo",
+            error_handler)) {
 
-                transaction,
-                digest,
+            BOOST_TEST_MESSAGE("Wallet    trx: " + transfer->get_body()->dump());
+            BOOST_TEST_MESSAGE("Wallet digest: " + transfer->get_digest().value_or("wrong digest..."));
 
-                errorDescription)){
-            BOOST_TEST_MESSAGE("Error happened in Pair");
-            return false;
+            return true;
         }
-
-        BOOST_TEST_MESSAGE("Wallet    trx: " + transaction);
-        BOOST_TEST_MESSAGE("Wallet    fee: " + fee);
-        BOOST_TEST_MESSAGE("Wallet digest: " + digest);
-
-        return  true;
-
+        return false;
     }
 };
 

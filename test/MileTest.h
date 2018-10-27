@@ -1,7 +1,9 @@
 #pragma once
 
-#include "milecsa_light_api.hpp"
+#include <optional>
 #include <boost/test/included/unit_test.hpp>
+
+#include "milecsa.hpp"
 
 struct MileTest {
 
@@ -9,12 +11,12 @@ struct MileTest {
         BOOST_TEST_MESSAGE("Setup "+name);
     }
 
-    void print_key_pair(milecsa::light::Pair *keyPair) {
+    void print_key_pair(const std::optional<milecsa::keys::Pair> &keyPair) {
         std::string mess = "Public key: ";
-        mess += keyPair->public_key;
+        mess += keyPair->get_public_key().encode();
         BOOST_TEST_MESSAGE(mess);
         mess = "Private key: ";
-        mess += keyPair->private_key;
+        mess += keyPair->get_private_key().encode();
         BOOST_TEST_MESSAGE(mess);
     }
 

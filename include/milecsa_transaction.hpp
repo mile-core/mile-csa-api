@@ -9,11 +9,14 @@
 #include <optional>
 #include <functional>
 
-#include "crypto.h"
+#include "mile_crypto.h"
 #include "json.hpp"
+
+#include "milecsa_assets.hpp"
 #include "milecsa_result.hpp"
 #include "milecsa_error.hpp"
 #include "milecsa_pair.hpp"
+
 
 namespace milecsa{
     namespace transaction {
@@ -21,7 +24,7 @@ namespace milecsa{
         /**
          * Some Request builder creates empty asset
          */
-        static const unsigned short EMPTY_ASSET_CODE = (unsigned short)-1;
+        //static const unsigned short EMPTY_ASSET_CODE = (unsigned short)-1;
 
         /**
          * Digest calculator closure
@@ -54,12 +57,12 @@ namespace milecsa{
             Request(const milecsa::keys::Pair &keyPair,
                     const uint256_t blockId,
                     const uint64_t  transactionId,
-                    unsigned short assetCode = EMPTY_ASSET_CODE) :
+                    const milecsa::token &asset = milecsa::assets::NILL) :
                     keyPair_(keyPair),
                     signer_(keyPair_),
                     blockId_(blockId),
                     transactionId_(transactionId),
-                    assetCode_(assetCode){}
+                    asset_(asset){}
 
             /**
              *
@@ -108,8 +111,8 @@ namespace milecsa{
                 digestCalculator_.Update(transactionId_);
                 digestCalculator_.Update(blockId_);
 
-                if (assetCode_ != EMPTY_ASSET_CODE)
-                    digestCalculator_.Update(assetCode_);
+                if (asset_.code != milecsa::assets::NILL.code)
+                    digestCalculator_.Update(asset_.code);
 
                 digestCalculator_.Update(keyPair_.get_public_key());
 
@@ -139,7 +142,7 @@ namespace milecsa{
             Request(const Request& request):
             parameters_(request.parameters_),keyPair_(request.keyPair_),
             signer_(request.signer_),blockId_(request.blockId_),transactionId_(request.transactionId_),
-            assetCode_(request.assetCode_),digest_(request.digest_),signature_(request.signature_),
+            asset_(request.asset_),digest_(request.digest_),signature_(request.signature_),
             digestCalculator_(request.digestCalculator_){}
 
         private:
@@ -152,7 +155,7 @@ namespace milecsa{
 
             uint256_t blockId_;
             uint64_t  transactionId_;
-            unsigned short  assetCode_;
+            milecsa::token  asset_;
 
             ::Digest digest_;
             ::Signature signature_;

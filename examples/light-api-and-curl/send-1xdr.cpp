@@ -22,7 +22,7 @@ using namespace milecsa::transaction;
 using namespace milecsa::keys;
 using namespace std;
 
-string url = "http://node002.testnet.mile.global/v1/api";
+string url = "http://104.248.7.135/v1/api";
 
 int send_transaction(const string &body)
 {
@@ -125,15 +125,20 @@ int main(int argc, char *argv[]) {
     ///
     /// Build signed transfer transaction
     ///
+
+    milecsa::token token = milecsa::assets::XDR;
+    std::string amount = milecsa::asset::amount_to_string(10.0f, milecsa::asset::code::XDR);
+
+
     if (milecsa::transaction::prepare_transfer(
             pair.private_key,          /// "from" private key
             to,                        /// "to" public key
             block_id,                  /// block id
             trx_id,                    /// user defined transaction id or number
-            0,                         /// asset code
-            "1",                       /// amount of transfer
+            milecsa::asset::XDR,       /// asset code
+            "1.00000",                 /// amount of transfer
             "memo",                    /// description
-            "",                        /// empty fee
+            "0.00000",                 /// empty fee
 
             transaction,               /// returned signed transaction as json string
             digest,                    /// uinq transaction digest string

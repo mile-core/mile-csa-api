@@ -4,71 +4,64 @@
 #include "../MileTest.h"
 #include <boost/test/included/unit_test.hpp>
 
+static auto error_handler = [](milecsa::result code, const std::string &error) mutable -> void {
+    BOOST_TEST_MESSAGE("Error happened in Generator: " + error);
+};
+
 struct Generator: public MileTest
 {
     Generator():MileTest("Generator"){}
 
     bool generate() {
-        milecsa::light::Pair keyPair;
+        auto keyPair = milecsa::keys::Pair::Random(error_handler);
 
-        if (milecsa::keys::generate(keyPair, errorDescription)) {
-            BOOST_TEST_MESSAGE("Error happened in Pair");
+        if (!keyPair) {
             return false;
         } else {
-            print_key_pair(&keyPair);
+            print_key_pair(keyPair);
             return true;
         }
     }
 
     bool generate_by_secret() {
 
-        milecsa::light::Pair keyPair;
+        auto keyPair = milecsa::keys::Pair::WithSecret("secret-phrase", error_handler);
 
-        if (milecsa::keys::generate_with_secret(keyPair, "test string", errorDescription))
+        if (!keyPair)
         {
-            BOOST_TEST_MESSAGE("Error happened in milecsa_generate_keys_pair_with_secret");
             return false;
         }
         else
         {
-           print_key_pair(&keyPair);
+            print_key_pair(keyPair);
             return true;
         }
     }
 
     bool validate() {
-        milecsa::light::Pair initialKeyPair;
+        auto initialKeyPair = milecsa::keys::Pair::Random(error_handler);
 
-        if (milecsa::keys::generate(initialKeyPair, errorDescription)) {
-            BOOST_TEST_MESSAGE("Error happened in Pair");
+        if (!initialKeyPair) {
             return false;
         } else {
-            milecsa::light::Pair keyPair;
+            std::optional<milecsa::keys::Pair> keyPair = milecsa::keys::Pair::FromPrivateKey(initialKeyPair->get_private_key().encode(), error_handler);
 
-            if(milecsa::keys::generate_from_private_key(
-                    keyPair,
-                    initialKeyPair.private_key,
-                    errorDescription)) {
-                BOOST_TEST_MESSAGE("Error happened in generate_from_private_key");
+            if(!keyPair) {
                 return false;
             }
             else
             {
-                if(milecsa::keys::validate(keyPair,errorDescription)){
-                    BOOST_TEST_MESSAGE("Error happened in validate");
+                if(!milecsa::keys::Pair::Validate(*keyPair, error_handler)){
                     return  false;
                 }
-                return true;
             }
+            return true;
         }
 
     }
 
-    bool validate_public() {
-        if(milecsa::keys::validate_public_key(
-                "2HdKCuZ8xaYK9TX2Sewqni8NKnGDUL7TMsDJ9ApD9MJkSEocX1",
-                errorDescription)) {
-            BOOST_TEST_MESSAGE("Error happened in milecsa_validate_public_key");
+    bool validate_public(const std::string &pk = "2HdKCuZ8xaYK9TX2Sewqni8NKnGDUL7TMsDJ9ApD9MJkSEocX1") {
+        if(!milecsa::keys::Pair::ValidatePublicKey(pk, error_handler)) {
             return false;
         }
         else
@@ -77,12 +70,9 @@ struct Generator: public MileTest
         }
     }
 
-    bool validate_private() {
+    bool validate_private(const std::string &pk = "TENDFTskF7RbYgLBLX6zusCVJMRGhU2aANktKXZfHAcXUJTAVisci8jAG79x8V2toc2ivpTahkDBvZGUeAnyewM8VfrFz") {
 
-        if(milecsa::keys::validate_private_key(
-                "TENDFTskF7RbYgLBLX6zusCVJMRGhU2aANktKXZfHAcXUJTAVisci8jAG79x8V2toc2ivpTahkDBvZGUeAnyewM8VfrFz",
-                errorDescription)) {
-            BOOST_TEST_MESSAGE("Error happened in milecsa_validate_private_key");
+        if(!milecsa::keys::Pair::ValidatePrivateKey(pk, error_handler)) {
             return false;
         }
         else
@@ -92,27 +82,12 @@ struct Generator: public MileTest
     }
 
     bool validate_public_fails() {
-        if(milecsa::keys::validate_public_key("2000HdKCuZ8xaYK9TX2Sewqni8NKnGDUL7TMsDJ9ApD9MJkSE", errorDescription)) {
-            BOOST_TEST_MESSAGE("Error happened in milecsa_validate_public_key");
-            return false;
-        }
-        else
-        {
-            return true;
-        }
+        return  validate_public("2000HdKCuZ8xaYK9TX2Sewqni8NKnGDUL7TMsDJ9ApD9MJkSE");
+
     }
 
     bool validate_private_fails() {
-        if(milecsa::keys::validate_private_key(
-                "TENDFTskF7RbYgLBL00000002aANktKXZfHAcXUJTAVisci8jAG79x8V2toc2ivpTahkDBvZGUeAnyewM8VfrFz",
-                errorDescription)) {
-            BOOST_TEST_MESSAGE("Error happened in milecsa_validate_private_key");
-            return false;
-        }
-        else
-        {
-            return true;
-        }
+        return validate_private("TENDFTskF7RbYgLBL00000002aANktKXZfHAcXUJTAVisci8jAG79x8V2toc2ivpTahkDBvZGUeAnyewM8VfrFz");
     }
 };
 

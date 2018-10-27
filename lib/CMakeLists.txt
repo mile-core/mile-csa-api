@@ -4,26 +4,26 @@ set(CMAKE_INSTALL_PREFIX /usr/local/${PROJECT_LIB})
 
 include_directories (
         ../include
-        ../vendor/crypto
-        ../vendor/ed25519/src
+        ../vendor/mile-crypto/include
+        ../vendor/mile-crypto/src/ed25519/include
+        ../vendor/mile-crypto/src/private_include
         ../vendor/nlohmann/
 )
 
 FILE(GLOB PUBLIC_INCLUDE_FILES
         ../vendor/nlohmann/*.hpp
-        ../vendor/crypto/crypto.h
+        ../vendor/mile-crypto/include/*.h
         ../include/*.hpp
         )
 
 FILE(GLOB INCLUDE_FILES
-        ../vendor/crypto/*.h
         ${PUBLIC_INCLUDE_FILES}
         )
 
 FILE(GLOB SOURCES
-        ../vendor/crypto/*.cpp
-        ../vendor/crypto/*.c
-        ../vendor/ed25519/src/*.c
+        ../vendor/mile-crypto/src/*.c
+        ../vendor/mile-crypto/src/*.cpp
+        ../vendor/mile-crypto/src/ed25519/src/*.c
         ../src/*.cpp
         ../src/transactions_wrapper/*.cpp
         )
@@ -53,7 +53,7 @@ target_include_directories(
         PUBLIC
         ../include
         ../vendor/nlohmann
-        ../vendor/crypto
+        ../vendor/mile-crypto/include
 )
 
 set(config_install_dir "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
