@@ -72,6 +72,27 @@ Build addon milecsa mudule on **mac os**:
 1. Ubuntu 18.4
 1. OSX 10.13, XCode10
 
+
+### Token properties
+
+```cpp
+    #include "milecsa_light_api.hpp"
+    
+    // available tokens: 
+    milecsa::token stable = milecsa::assets::XDR;
+    milecsa::token index  = milecsa::assets::MILE;
+
+    // Properties
+    std::cout << "Name:      " << stable.name;
+    std::cout << "Code:      " << stable.code;
+    std::cout << "Precision: " << stable.precision;
+
+    // Fixed point conversion to string presentation    
+    std::string amount = asset.value_to_string(100.1f);
+     
+
+```
+
 ### Wallet public/private keys Pair class
 
 ```cpp
