@@ -66,5 +66,7 @@ namespace milecsa {
         * NULL coin
         */
         static token NILL;
+
+        static const milecsa::token &TokenFromCode(unsigned short assetCode) ;
     };
 }

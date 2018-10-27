@@ -45,38 +45,22 @@ set(CMAKE_EXE_LINKER_FLAGS_RELEASE_INIT "-O3 --llvm-lto 1")
 set (WASM ${PROJECT_LIB}.js)
 
 include_directories (
+        ../wrapper
         ../../include
-        ../../vendor/crypto
-        ../../vendor/ed25519/src
+        ../../vendor/mile-crypto/include
+        ../../vendor/mile-crypto/src/private_include
+        ../../vendor/mile-crypto/src/ed25519/include
         ../../vendor/nlohmann
 )
 
-list(APPEND WASM_SOURCES
-
-        ../../vendor/ed25519/src/add_scalar.c
-        ../../vendor/ed25519/src/fe.c
-        ../../vendor/ed25519/src/ge.c
-        ../../vendor/ed25519/src/key_exchange.c
-        ../../vendor/ed25519/src/keypair.c
-        ../../vendor/ed25519/src/sc.c
-        ../../vendor/ed25519/src/seed.c
-        ../../vendor/ed25519/src/sha512.c
-        ../../vendor/ed25519/src/sign.c
-        ../../vendor/ed25519/src/verify.c
-        ../../vendor/crypto/base58.cpp
-        ../../vendor/crypto/milecsa_crypto.cpp
-        ../../vendor/crypto/ed25519_ext.cpp
-        ../../vendor/crypto/sha3.c
-
-        ../../src/milecsa_pair_wrapper.cpp
-        ../../src/milecsa_pair.cpp
-        ../../src/milecsa_utils.cpp
-        ../../vendor/crypto/milecsa_crypto_types.cpp
-        ../../src/transactions_wrapper/milecsa_transfer.cpp
-        ../../src/transactions_wrapper/milecsa_emission.cpp
-
-        milecsa_wasm.cpp
-)
+FILE(GLOB WASM_SOURCES
+        ../wrapper/*.cpp
+        ../../vendor/mile-crypto/src/*.c
+        ../../vendor/mile-crypto/src/*.cpp
+        ../../vendor/mile-crypto/src/ed25519/src/*.c
+        ../../src/*.cpp
+        ./*.cpp
+        )
 
 add_executable(${WASM} ${WASM_SOURCES})
 

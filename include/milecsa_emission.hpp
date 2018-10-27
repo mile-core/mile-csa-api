@@ -35,6 +35,12 @@ namespace milecsa{
                                                                      const milecsa::ErrorHandler &error = default_error_handler
             ){
 
+                if (asset.code == milecsa::assets::NILL.code) {
+                    error(milecsa::result::NOT_SUPPORTED,
+                          ErrorFormat("MILE asset must be %s or %s",  milecsa::assets::XDR.name.c_str(),milecsa::assets::MILE.name.c_str()));
+                    return std::nullopt;
+                }
+
                 auto request = BaseTransfer<T,name>(keyPair, blockId, transactionId, asset);
                 auto fee_string = asset.value_to_string(fee);
 

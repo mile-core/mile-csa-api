@@ -57,6 +57,12 @@ namespace milecsa{
                     return std::nullopt;
                 }
 
+                if (asset.code == milecsa::assets::NILL.code) {
+                    error(milecsa::result::NOT_SUPPORTED,
+                          ErrorFormat("MILE asset must be %s or %s",  milecsa::assets::XDR.name.c_str(),milecsa::assets::MILE.name.c_str()));
+                    return std::nullopt;
+                }
+
                 if (nodeAddress.empty()) {
                     error(milecsa::result::EMPTY,
                           ErrorFormat("node address is empty"));

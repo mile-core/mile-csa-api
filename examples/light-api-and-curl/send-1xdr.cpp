@@ -8,7 +8,7 @@
 
 #include <string>
 #include <iostream>
-#include <milecsa_light_api.hpp>
+#include "../../platforms/wasm/wrapper/milecsa_light_api.hpp"
 
 #ifdef WITH_CURL
 #include <curl/curl.h>

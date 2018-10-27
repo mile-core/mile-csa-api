@@ -4,7 +4,7 @@
 
 #include <string>
 #include <iostream>
-#include <milecsa_light_api.hpp>
+#include "../../platforms/wasm/wrapper/milecsa_light_api.hpp"
 
 using milecsa::light::Pair;
 using  result = milecsa::light::result;

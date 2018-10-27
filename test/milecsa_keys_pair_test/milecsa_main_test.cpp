@@ -1,6 +1,6 @@
 #define BOOST_TEST_MODULE generate_pair
 
-#include "milecsa_light_api.hpp"
+#include "../../platforms/wasm/wrapper/milecsa_light_api.hpp"
 #include "../MileTest.h"
 #include <boost/test/included/unit_test.hpp>
 

@@ -60,6 +60,7 @@ else()
     add_subdirectory(test)
     enable_testing ()
 endif()
+
 unset(platforms/wasm CACHE)
 
 if (nodejs)

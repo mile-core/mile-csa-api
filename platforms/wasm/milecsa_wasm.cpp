@@ -1,7 +1,6 @@
 #include <string>
 #include <emscripten/bind.h>
-#include "crypto_types.h"
-#include "milecsa_crypto.h"
+#include "mile_crypto.h"
 #include "milecsa_light_api.hpp"
 
 using namespace emscripten;
@@ -115,6 +114,9 @@ EMSCRIPTEN_BINDINGS(mile) {
         .property("body", &Transaction::body)
         .property("digest", &Transaction::digest)
 
+        ///
+        /// Transfer
+        ///
         .function("Transfer", optional_override([](
         Transaction& transaction,
         const Pair& p,
@@ -122,15 +124,13 @@ EMSCRIPTEN_BINDINGS(mile) {
         const std::string &blockId,
         const std::string &transactionId,
         unsigned short asset,
-        const std::string &amount,
+        float amount,
+        float fee,
         const std::string &description,
-        const std::string &fee,
         error& error_) {
             error_.errorMessage = "";
 
-            //uint256_t bid;
             uint64_t tid;
-            //StringToUInt256(blockId, bid, false);
             StringToUInt64(transactionId, tid, false);
 
             error_.errorMessage = "";
@@ -141,39 +141,35 @@ EMSCRIPTEN_BINDINGS(mile) {
                                                            tid,
                                                            asset,
                                                            amount,
-                                                           description,
                                                            fee,
+                                                           description,
                                                            transaction.t_body,
                                                            transaction.t_digest,
                                                            error_.errorMessage);
         }))
+
+        ///
+        /// Emission
+        ///
         .function("Emission", optional_override([](
         Transaction& transaction,
         const Pair& p,
-        const std::string &dstWalletPublicKey,
         const std::string &blockId,
         const std::string &transactionId,
         unsigned short asset,
-        const std::string &amount,
-        const std::string &description,
-        const std::string &fee,
+        float fee,
         error& error_) {
             error_.errorMessage = "";
 
-           // uint256_t bid;
             uint64_t tid;
-           // StringToUInt256(blockId, bid, false);
             StringToUInt64(transactionId, tid, false);
 
             error_.errorMessage = "";
 
             return  milecsa::transaction::prepare_emission(p.private_key,
-                                                           dstWalletPublicKey,
                                                            blockId,
                                                            tid,
                                                            asset,
-                                                           amount,
-                                                           description,
                                                            fee,
                                                            transaction.t_body,
                                                            transaction.t_digest,
