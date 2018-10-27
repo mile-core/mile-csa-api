@@ -104,6 +104,12 @@ namespace milecsa{
         static const char  __transferName[] = "TransferAssetsTransaction";
         template <typename T>
         class Transfer: public BaseTransfer<T, __transferName> {};
+
+        /**
+         * Json Transfer type
+         */
+        typedef milecsa::transaction::Transfer<nlohmann::json> JsonTransfer;
+
     }
 }
 

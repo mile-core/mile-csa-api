@@ -68,6 +68,11 @@ namespace milecsa{
          */
         template <typename T>
         class Emission: public BaseEmission<T,__emissionTransferName> {};
+
+        /**
+        * Json Emission request type
+        */
+        typedef milecsa::transaction::Emission<nlohmann::json> JsonEmission;
     }
 }
 

@@ -143,8 +143,12 @@ namespace milecsa{
 
                 return std::make_optional(request);
             }
-
         };
+
+        /**
+        * Json Node type
+        */
+        typedef std::optional<milecsa::transaction::Node<nlohmann::json>> JsonNode;
     }
 }
 

@@ -158,6 +158,10 @@ namespace milecsa{
             milecsa::keys::DigestCalculator digestCalculator_;
         };
 
+        /**
+         * Json request type
+         */
+        typedef std::optional<Request<nlohmann::json>> JsonRequest;
     }
 }
 

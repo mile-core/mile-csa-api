@@ -8,9 +8,9 @@ project(milecsa)
 # Build a shared library named after the project from the files in `src/`
 
 file(GLOB MILECSA_SOURCES
-        ../../vendor/ed25519/src/*.c
-        ../../vendor/crypto/*.cpp
-        ../../vendor/crypto/*.c
+        ../../vendor/mile-crypto/src/*.cpp
+        ../../vendor/mile-crypto/src/*.c
+        ../../vendor/mile-crypto/src/ed25519/src/*.c
         ../../src/*.cpp
         src/*.cpp
         )
@@ -32,8 +32,9 @@ require_boost_libs("= 1.66.0" "system")
 include_directories(
         ./
         ../../include
-        ../../vendor/ed25519/src
-        ../../vendor/crypto
+        ../../vendor/mile-crypto/include
+        ../../vendor/mile-crypto/src/ed25519/include
+        ../../vendor/mile-crypto/src/private_include
         ../../vendor/nlohmann
         ${CMAKE_JS_INC}
         ${Boost_INCLUDE_DIRS}

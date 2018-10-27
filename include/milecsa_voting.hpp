@@ -74,6 +74,11 @@ namespace milecsa{
                 return std::make_optional(request);
             }
         };
+
+        /**
+         * Json Vote type
+         */
+        typedef std::optional<milecsa::transaction::Vote<nlohmann::json>> JsonVote;
     }
 }
 

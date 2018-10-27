@@ -63,7 +63,7 @@ endif()
 
 unset(platforms/wasm CACHE)
 
-if (nodejs)
+#if (nodejs)
     add_custom_target (
             nodejs
             COMMAND npm install --prefix ../platforms/nodejs
@@ -72,6 +72,6 @@ if (nodejs)
             nodejs-test
             COMMAND npm test --prefix ../platforms/nodejs
     )
-endif ()
+#endif ()
 
 set(CMAKE_INSTALL_PREFIX "/usr/local/${PROJECT_LIB}")
