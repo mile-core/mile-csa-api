@@ -116,9 +116,9 @@
             "2",                     // block id, @see: getCurrentBlockId bellow
             "0",                     // transaction id
             0,                       // asset code
-            "1000",                  // amount
+            1000.0,                  // amount
+            0.0,                     // fee, always 0.0
             "memo field",            // description
-            "",                      // fee, always ""
             error) 
      if(ret != Module.result.OK){
          //
@@ -145,13 +145,10 @@
 
      var ret =  transaction.Emission(
             pair,                    // pair
-            destination.public_key,  // destination
             "2",                     // block id, @see: getCurrentBlockId bellow
             "0",                     // transaction id
             0,                       // asset code
-            "1000",                  // amount
-            "memo field",            // description
-            "",                      // fee, always ""
+            0,                       // fee, always ""
             error) 
      if(ret != Module.result.OK){
          //
