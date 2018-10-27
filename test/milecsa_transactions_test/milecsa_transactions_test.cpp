@@ -1,6 +1,5 @@
 #define BOOST_TEST_MODULE transactions
 
-#include "milecsa_light_api.hpp"
 #include "../MileTest.h"
 #include "milecsa_transfer_test.hpp"
 #include "milecsa_nodes_test.hpp"

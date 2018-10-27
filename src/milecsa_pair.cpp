@@ -3,7 +3,6 @@
 //
 
 #include "milecsa_pair.hpp"
-#include "crypto.h"
 
 namespace milecsa::keys{
     void PublicKey::clear() {

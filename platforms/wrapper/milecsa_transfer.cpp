@@ -8,21 +8,21 @@
 using json = nlohmann::json;
 
 milecsa::light::result milecsa::transaction::prepare_transfer(const std::string &privateKey,
-													   const std::string &dstWalletPublicKey,
+                                                              const std::string &dstWalletPublicKey,
 
-													   const std::string &blockId,
-													   const uint64_t  transactionId,
+                                                              const std::string &blockId,
+                                                              const uint64_t  transactionId,
 
-													   unsigned short assetCode,
-													   const std::string &amount,
-													   const std::string &description,
-													   const std::string &fee,
+                                                              unsigned short assetCode,
+                                                              float amount,
+                                                              float fee,
+                                                              const std::string &description,
 //
 // Signed json
 //
-													   std::string &transaction,
-													   std::string &digest,
-													   std::string &errorMessage) {
+                                                              std::string &transaction,
+                                                              std::string &digest,
+                                                              std::string &errorMessage) {
     milecsa::light::result result;
 
     auto error = [&errorMessage, &result](milecsa::result code, const std::string &error) mutable -> void {
@@ -47,10 +47,10 @@ milecsa::light::result milecsa::transaction::prepare_transfer(const std::string 
             dstWalletPublicKey,
             bid,
             trx_id,
-            assetCode,
+            milecsa::assets::TokenFromCode(assetCode),
             amount,
-            description,
             fee,
+            description,
             error)) {
 
         if (auto trx = transfer->get_body()) transaction = trx->dump();

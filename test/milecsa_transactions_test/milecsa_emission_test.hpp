@@ -5,8 +5,10 @@
 #ifndef MILECSA_MILECSA_EMISSION_TEST_HPP
 #define MILECSA_MILECSA_EMISSION_TEST_HPP
 
-#include "milecsa_light_api.hpp"
+#include "milecsa.hpp"
 #include "MIleTestTransaction.hpp"
+
+using json = nlohmann::json;
 
 struct Emission: public MIleTestTransaction {
 
@@ -14,33 +16,28 @@ struct Emission: public MIleTestTransaction {
 
     bool test() {
 
-        std::string transaction;
-        std::string fee;
-        std::string digest;
+        uint256_t bid   = get_block_id();
 
-        if (milecsa::transaction::prepare_emission(
-                keyPair.private_key,
-                "2n9z7C3f9SdCrLuCkekxFRgaFq8eoJMizRzbJDpxGoXnYgTaoz",
-                "0",
-                0,
-                1,
-                "1000",
-                "memo",
-                fee,
+        srand(time(0));
+        uint64_t trx_id =  (uint64_t)rand();
 
-                transaction,
-                digest,
+        if (auto transfer = milecsa::transaction::Emission<json>::CreateRequest(
+                *keyPair,
+                bid,
+                trx_id,
+                milecsa::assets::MILE,
+                0.0f,
+                error_handler)) {
 
-                errorDescription)){
-            BOOST_TEST_MESSAGE("Error happened in Pair");
-            return false;
+            auto trx_body = transfer->get_body()->dump();
+
+            BOOST_TEST_MESSAGE("Wallet    trx: " + trx_body);
+            BOOST_TEST_MESSAGE("Wallet digest: " + transfer->get_digest().value_or("wrong digest..."));
+
+            return send(trx_body) == 0;
+
         }
-
-        BOOST_TEST_MESSAGE("Wallet    trx: " + transaction);
-        BOOST_TEST_MESSAGE("Wallet    fee: " + fee);
-        BOOST_TEST_MESSAGE("Wallet digest: " + digest);
-
-        return  true;
+        return false;
 
     }
 };

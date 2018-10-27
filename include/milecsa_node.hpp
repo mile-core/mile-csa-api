@@ -6,7 +6,6 @@
 #define MILECSA_MILECSA_NODE_HPP
 
 #include "milecsa_transaction.hpp"
-#include "milecsa_utils.hpp"
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -26,29 +25,43 @@ namespace milecsa{
 
             using Request<T>::RequestBuilder::RequestBuilder;
 
-           /**
-             * Create request to register MILE node
-             *
-             * @param keyPair
-             * @param nodeAddress
-             * @param blockId
-             * @param transactionId
-             * @param assetCode
-             * @param amount
-             * @param error
-             * @return Request object
-             */
+            /**
+              * Create request to register MILE node
+              *
+              * @param keyPair
+              * @param nodeAddress
+              * @param blockId
+              * @param transactionId
+              * @param assetCode
+              * @param amount
+              * @param error
+              * @return Request object
+              */
             static std::optional<Node<T>> CreateRegisterRequest(const milecsa::keys::Pair &keyPair,
-                                                           const std::string &nodeAddress,
+                                                                const std::string &nodeAddress,
 
-                                                           const uint256_t blockId,
-                                                           const uint64_t  transactionId,
+                                                                const uint256_t blockId,
+                                                                const uint64_t  transactionId,
 
-                                                           unsigned short assetCode,
-                                                           const std::string &amount,
+                                                                const milecsa::token &asset,
+                                                                float  amount,
 
-                                                           const milecsa::ErrorHandler &error = default_error_handler
+                                                                const milecsa::ErrorHandler &error = default_error_handler
             ){
+
+                auto amount_string = asset.value_to_string(amount);
+
+                if (amount <=0.0f || amount_string.empty()) {
+                    error(milecsa::result::EMPTY,
+                          ErrorFormat("MILE amount must be over then 0"));
+                    return std::nullopt;
+                }
+
+                if (asset.code == milecsa::assets::NILL.code) {
+                    error(milecsa::result::NOT_SUPPORTED,
+                          ErrorFormat("MILE asset must be %s or %s",  milecsa::assets::XDR.name.c_str(),milecsa::assets::MILE.name.c_str()));
+                    return std::nullopt;
+                }
 
                 if (nodeAddress.empty()) {
                     error(milecsa::result::EMPTY,
@@ -66,26 +79,26 @@ namespace milecsa{
                 const char *na = nodeAddress.c_str();
 
                 if (inet_aton(na, &addr) == 0 ) {
-                   if (gethostbyname(na) == nullptr){
-                       error(milecsa::result::NOT_FOUND,
-                             ErrorFormat("address is not host name or ip"));
-                       return std::nullopt;
-                   }
-               }
+                    if (gethostbyname(na) == nullptr){
+                        error(milecsa::result::NOT_FOUND,
+                              ErrorFormat("address %s is not host name or ip", nodeAddress.c_str()));
+                        return std::nullopt;
+                    }
+                }
 
-                auto request = Node<T>(keyPair, blockId, transactionId, assetCode);
+                auto request = Node<T>(keyPair, blockId, transactionId, asset);
 
                 request.setup(
                         "RegisterNodeTransactionWithAmount",
                         [&](DigestCalculator &calculator){
                             calculator.Update(nodeAddress, 64);
-                            calculator.Update(amount, amount.size());
+                            calculator.Update(amount_string, amount_string.size());
                         },
 
                         [&](T &parameters,
                             const std::string &publicKey) {
                             parameters["public-key"] = publicKey;
-                            parameters["asset"] = { { "amount", amount }, { "code", assetCode } } ;
+                            parameters["asset"] = { { "amount", amount_string }, { "code", asset.code } } ;
                             parameters["address"] = nodeAddress;
                         });
 
@@ -104,11 +117,11 @@ namespace milecsa{
              * @return
              */
             static std::optional<Node<T>> CreateUnregisterRequest(const milecsa::keys::Pair &keyPair,
-                                                                   const std::string &nodeAddress,
+                                                                  const std::string &nodeAddress,
 
-                                                                   const uint256_t blockId,
-                                                                   const uint64_t  transactionId,
-                                                                   const milecsa::ErrorHandler &error
+                                                                  const uint256_t blockId,
+                                                                  const uint64_t  transactionId,
+                                                                  const milecsa::ErrorHandler &error
             ){
 
                 if (nodeAddress.empty()) {
@@ -130,8 +143,12 @@ namespace milecsa{
 
                 return std::make_optional(request);
             }
-
         };
+
+        /**
+        * Json Node type
+        */
+        typedef std::optional<milecsa::transaction::Node<nlohmann::json>> JsonNode;
     }
 }
 

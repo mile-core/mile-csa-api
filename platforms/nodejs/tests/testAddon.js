@@ -54,22 +54,20 @@ describe("Boost Based Addon", function() {
             "2",                     // block id
             "0",                     // transaction id
             0,                       // asset code
-            "1000",                  // amount
+            1000,                    // amount
+            0,                       // fee, always 0
             "memo field",            // description
-            ""                       // fee, always ""
             )
 
         console.log(" Transfer    : ", transfer);
 
         var emission  =  transaction.Emission(
             pair,                    // pair
-            from_private.public_key, // destination
             "2",                     // block id
             "0",                     // transaction id
             0,                       // asset code
-            "1000",                  // amount
-            "memo field",            // description
-            ""                       // fee, always ""
+            1000,                    // amount
+            ""                       // fee, always 0
         )
 
         console.log(" Emission    : ", emission);
@@ -78,13 +76,11 @@ describe("Boost Based Addon", function() {
         try {
             var emission  =  transaction.Emission(
                 pair,                    // pair
-                "not valid",             // destination
                 "2",                     // block id
                 "0",                     // transaction id
                 0,                       // asset code
                 "1000",                  // amount
-                "memo field",            // description
-                ""                       // fee, always ""
+                "0"                      // fee, always ""
             )
         }
         catch (e) {

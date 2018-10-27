@@ -8,7 +8,6 @@ set (BOOST_COMPONENTS
 include_directories(
         ./
         ../../include
-        ../../vendor/crypto
         ../../vendor/nlohmann
 )
 

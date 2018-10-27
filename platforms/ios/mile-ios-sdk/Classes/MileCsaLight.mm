@@ -133,9 +133,9 @@ inline NSError *error2NSError(const std::string &errorMessage, milecsa::result c
                                 blockId:(NSString *)blockId
                           transactionId:(uint64_t)transactionId
                               assetCode:(unsigned short)assetCode
-                                 amount:(NSString *)amount
+                                 amount:(float)amount
+                                    fee:(float)fee
                             description:(NSString *)description
-                                    fee:(NSString *)fee
                                   error:(NSError *__autoreleasing  _Null_unspecified *)error{
     
     auto _error = [error](milecsa::result code, std::string result) mutable -> void {
@@ -144,7 +144,6 @@ inline NSError *error2NSError(const std::string &errorMessage, milecsa::result c
     
     auto pair = [wallet_pair get_pair];
     
-    
     uint256_t ui;
     
     if(!StringToUInt256([blockId UTF8String], ui, false)) {
@@ -152,42 +151,41 @@ inline NSError *error2NSError(const std::string &errorMessage, milecsa::result c
     }
     
     std::string desc = description == nil ? "" : [description UTF8String];
-    std::string f    = fee == nil ? "" : [fee UTF8String];
     
-    std::optional<milecsa::transaction::Request<nlohmann::json>> transfer;
+    milecsa::transaction::JsonRequest transaction;
+    
+    using  transfer = milecsa::transaction::JsonTransfer;
+    using  emission = milecsa::transaction::JsonEmission;
     
     switch (type) {
         case 0:
-            transfer = milecsa::transaction::Transfer<nlohmann::json>::CreateRequest(
-                                                                                     pair,
-                                                                                     [destPublicKey UTF8String],
-                                                                                     ui,
-                                                                                     transactionId,
-                                                                                     assetCode,
-                                                                                     [amount UTF8String],
-                                                                                     desc,
-                                                                                     f,
-                                                                                     _error);
+            transaction = transfer::CreateRequest(
+                                                  pair,
+                                                  [destPublicKey UTF8String],
+                                                  ui,
+                                                  transactionId,
+                                                  milecsa::assets::TokenFromCode(assetCode),
+                                                  amount,
+                                                  fee,
+                                                  desc,
+                                                  _error);
             break;
         case 1:
-            transfer = milecsa::transaction::Emission<nlohmann::json>::CreateRequest(
-                                                                                     pair,
-                                                                                     [destPublicKey UTF8String],
-                                                                                     ui,
-                                                                                     transactionId,
-                                                                                     assetCode,
-                                                                                     [amount UTF8String],
-                                                                                     desc,
-                                                                                     f,
-                                                                                     _error);
+            transaction = emission::CreateRequest(
+                                                  pair,
+                                                  ui,
+                                                  transactionId,
+                                                  milecsa::assets::TokenFromCode(assetCode),
+                                                  fee,
+                                                  _error);
             break;
         default:
             *error = error2NSError("Unknown transaction", milecsa::result::UNKNOWN, @"Request builder error");
             return nil;
     }
     
-    if(transfer){
-        if (auto trx = transfer->get_body()){
+    if(transaction){
+        if (auto trx = transaction->get_body()){
             NSData *data = [[NSString stringWithUTF8String:trx->dump().c_str()]
                             dataUsingEncoding:NSUTF8StringEncoding];
             return  [NSJSONSerialization JSONObjectWithData:data
@@ -204,26 +202,41 @@ inline NSError *error2NSError(const std::string &errorMessage, milecsa::result c
                            blockId:(NSString *)blockId
                      transactionId:(uint64_t)transactionId
                          assetCode:(unsigned short)assetCode
-                            amount:(NSString *)amount
+                            amount:(float)amount
+                               fee:(float)fee
                        description:(NSString *)description
-                               fee:(NSString *)fee
                              error:(NSError *__autoreleasing  _Null_unspecified *)error{
     
-    return [self base_transfer: 0 wallet_pair:wallet_pair destPublicKey:destPublicKey blockId:blockId transactionId:transactionId assetCode:assetCode amount:amount description:description fee:fee error:error];
+    return [self base_transfer: 0
+                   wallet_pair:wallet_pair
+                 destPublicKey:destPublicKey
+                       blockId:blockId
+                 transactionId:transactionId
+                     assetCode:assetCode
+                        amount:amount
+                           fee:fee
+                   description:description
+                         error:error];
     
 }
 
 
 +(nullable NSDictionary*) emission:(MileCsaKeys *)wallet_pair
-                     destPublicKey:(NSString *)destPublicKey
                            blockId:(NSString *)blockId
                      transactionId:(uint64_t)transactionId
                          assetCode:(unsigned short)assetCode
-                            amount:(NSString *)amount
-                       description:(NSString *)description
-                               fee:(NSString *)fee
+                               fee:(float)fee
                              error:(NSError *__autoreleasing  _Null_unspecified *)error{
-    return [self base_transfer: 1 wallet_pair:wallet_pair destPublicKey:destPublicKey blockId:blockId transactionId:transactionId assetCode:assetCode amount:amount description:description fee:fee error:error];
+    return [self base_transfer: 1
+                   wallet_pair:wallet_pair
+                 destPublicKey:@""
+                       blockId:blockId
+                 transactionId:transactionId
+                     assetCode:assetCode
+                        amount:0
+                           fee:fee
+                   description:@""
+                         error:error];
 }
 
 @end

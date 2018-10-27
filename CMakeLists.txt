@@ -41,8 +41,17 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 
 endif()
 
-option(wasm "wasm" OFF)
+file(GLOB LIBRARY_FILE_LIST ${CMAKE_SOURCE_DIR}/vendor/mile-crypto/*.*)
+list(LENGTH LIBRARY_FILE_LIST NUMBER_OF_FILES)
+if (NUMBER_OF_FILES EQUAL 0)
+    message(STATUS "'mile-crypto' library not found")
+    execute_process(COMMAND git submodule update --init --recursive vendor/mile-crypto
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+else ()
+    message(STATUS "'mile-crypto' library found")
+endif()
 
+option(wasm "wasm" OFF)
 
 if(wasm)
     add_subdirectory(platforms/wasm)
@@ -51,6 +60,7 @@ else()
     add_subdirectory(test)
     enable_testing ()
 endif()
+
 unset(platforms/wasm CACHE)
 
 if (nodejs)

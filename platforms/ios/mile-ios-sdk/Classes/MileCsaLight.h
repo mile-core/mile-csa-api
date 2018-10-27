@@ -98,8 +98,8 @@
  * @param transactionId - user defined transaction id, it may be random or be recieved as wallet transaction id from wallet state
  * @param assetCode - transfer asset
  * @param amount - asset amount
- * @param description - user defined description attached to the transfer
  * @param fee - fee proposal
+ * @param description - user defined description attached to the transfer
  * @param error - handle error if body of request could not be created
  * @return body of request
  */
@@ -108,33 +108,27 @@
                        blockId:(nonnull NSString*)blockId
                  transactionId:(uint64_t)transactionId
                      assetCode:(unsigned short)assetCode
-                        amount:(nonnull NSString*)amount
-                        description:(nullable NSString*)description
-                        fee:(nullable NSString*)fee
+                        amount:(float)amount
+                        fee:(float)fee
+                       description:(nullable NSString*)description
                          error:(NSError *_Null_unspecified __autoreleasing *_Null_unspecified)error;
 
 /**
  * Prepare body of signed transaction to make emission from wallet to certain destination address (public key of recepient)
  *
  * @param pair - wallet pair of assets owner
- * @param destPublicKey - destination address
  * @param blockId - current blockchain block id
  * @param transactionId - user defined transaction id, it may be random or be recieved as wallet transaction id from wallet state
  * @param assetCode - transfer asset
- * @param amount - asset amount
- * @param description - user defined description attached to the transfer
  * @param fee - fee proposal
  * @param error - handle error if body of request could not be created
  * @return body of request
  */
 +(nullable NSDictionary*) emission:(nonnull MileCsaKeys *)pair
-                 destPublicKey:(nonnull NSString*)destPublicKey
                        blockId:(nonnull NSString*)blockId
                  transactionId:(uint64_t)transactionId
                      assetCode:(unsigned short)assetCode
-                        amount:(nonnull NSString*)amount
-                        description:(nullable NSString*)description
-                        fee:(nullable NSString*)fee
+                        fee:(float)fee
                          error:(NSError *_Null_unspecified __autoreleasing *_Null_unspecified)error;
 @end
 

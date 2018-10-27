@@ -5,8 +5,11 @@
 #ifndef MILECSA_MILECSA_NODES_TEST_HPP
 #define MILECSA_MILECSA_NODES_TEST_HPP
 
-#include "milecsa_light_api.hpp"
+#include "milecsa.hpp"
 #include "MIleTestTransaction.hpp"
+#include "json.hpp"
+
+using json = nlohmann::json;
 
 struct Node: public MIleTestTransaction {
 
@@ -14,50 +17,39 @@ struct Node: public MIleTestTransaction {
 
     bool register_node(const std::string &nodeAddress = "172.20.20.1") {
 
-        std::string transaction;
-        std::string digest;
-
-        if (milecsa::transaction::prepare_register_node(
-                keyPair.private_key,
+        if (auto node = milecsa::transaction::Node<json>::CreateRegisterRequest(
+                *keyPair,
                 nodeAddress,
-                "0",
                 0,
                 0,
-                "1000",
-                transaction,
-                digest,
-                errorDescription)) {
-            BOOST_TEST_MESSAGE("Error happened in Pair");
-            return false;
+                milecsa::assets::XDR,
+                1000,
+                error_handler)) {
+            BOOST_TEST_MESSAGE("Wallet    trx: " + node->get_body()->dump());
+            BOOST_TEST_MESSAGE("Wallet digest: " + node->get_digest().value_or("wrong digest..."));
+            return true;
         }
 
-        BOOST_TEST_MESSAGE("Wallet    trx: " + transaction);
-        BOOST_TEST_MESSAGE("Wallet digest: " + digest);
-
-        return true;
+        return false;
     }
 
     bool unregister_node() {
         std::string transaction;
         std::string digest;
 
-        if(milecsa::transaction::prepare_unregister_node(
-                keyPair.private_key,
+        if(auto node = milecsa::transaction::Node<json>::CreateUnregisterRequest(
+                *keyPair,
                 nodeAddress,
-                "0",
                 0,
-                transaction,
-                digest,
-                errorDescription)){
+                0,
+                error_handler)){
 
-            BOOST_TEST_MESSAGE("Error happened in Pair");
-            return false;
+            BOOST_TEST_MESSAGE("Wallet    trx: " + node->get_body()->dump());
+            BOOST_TEST_MESSAGE("Wallet digest: " + node->get_digest().value_or("wrong digest..."));
+
+            return true;
         }
-
-        BOOST_TEST_MESSAGE("Wallet    trx: " + transaction);
-        BOOST_TEST_MESSAGE("Wallet digest: " + digest);
-
-        return true;
+        return false;
     };
 };
 

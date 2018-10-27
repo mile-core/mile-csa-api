@@ -2,7 +2,6 @@
 include_directories(
         ../
         ../../include
-        ../../vendor/crypto
 )
 
 file (GLOB TESTS_SOURCES ${TESTS_SOURCES}
