@@ -22,11 +22,6 @@ namespace milecsa{
     namespace transaction {
 
         /**
-         * Some Request builder creates empty asset
-         */
-        //static const unsigned short EMPTY_ASSET_CODE = (unsigned short)-1;
-
-        /**
          * Digest calculator closure
          */
         typedef std::function<void(milecsa::keys::DigestCalculator &calculator)> CalculatorClosure;

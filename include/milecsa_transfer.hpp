@@ -29,10 +29,10 @@ namespace milecsa{
              * @param dstWalletPublicKey - destination address
              * @param blockId - current blockchain id
              * @param transactionId - user defined transaction id
-             * @param assetCode - asset code
+             * @param asset - asset
              * @param amount - how much
-             * @param description - transfer description
              * @param fee - fee, can be empty
+             * @param description - transfer description
              * @param error - error closure
              * @return optional request object
              */

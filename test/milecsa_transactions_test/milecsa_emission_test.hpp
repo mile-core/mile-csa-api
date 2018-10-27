@@ -16,24 +16,26 @@ struct Emission: public MIleTestTransaction {
 
     bool test() {
 
-        uint256_t bid   = 0;
+        uint256_t bid   = get_block_id();
+
+        srand(time(0));
         uint64_t trx_id =  (uint64_t)rand();
 
         if (auto transfer = milecsa::transaction::Emission<json>::CreateRequest(
                 *keyPair,
-                destination->get_public_key().encode(),
                 bid,
                 trx_id,
-                milecsa::assets::XDR,
-                1.1f,
+                milecsa::assets::MILE,
                 0.0f,
-                "memo",
                 error_handler)) {
 
-            BOOST_TEST_MESSAGE("Wallet    trx: " + transfer->get_body()->dump());
+            auto trx_body = transfer->get_body()->dump();
+
+            BOOST_TEST_MESSAGE("Wallet    trx: " + trx_body);
             BOOST_TEST_MESSAGE("Wallet digest: " + transfer->get_digest().value_or("wrong digest..."));
 
-            return true;
+            return send(trx_body) == 0;
+
         }
         return false;
 
