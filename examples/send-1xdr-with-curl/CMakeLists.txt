@@ -26,7 +26,9 @@ include_directories(
 
 if (${CURL_FOUND})
     message(STATUS "curl library version: " ${CURL_VERSION_STRING})
-    add_compile_definitions(WITH_CURL)
+    #add_compile_definitions(WITH_CURL)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DWITH_CURL")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DWITH_CURL")
 endif ()
 
 add_executable(${PROJECT} send-1xdr.cpp)
