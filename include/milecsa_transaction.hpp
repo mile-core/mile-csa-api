@@ -118,7 +118,7 @@ namespace milecsa{
 
                 parameters_ =
                         {
-                                {"transaction-name", transactionName},
+                                {"transaction-type", transactionName},
                                 {"block-id",       UInt256ToDecString(blockId_)},
                                 {"transaction-id", transactionId_},
                                 {"digest",         digest_.ToBase58CheckString()},
