@@ -4,23 +4,26 @@ set(CMAKE_INSTALL_PREFIX /usr/local/${PROJECT_LIB})
 
 include_directories (
         ../include
-        ../vendor/crypto
-        ../vendor/ed25519/src
+        ../vendor/mile-crypto/include
+        ../vendor/mile-crypto/src/ed25519/include
+        ../vendor/mile-crypto/src/private_include
         ../vendor/nlohmann/
 )
 
-FILE(GLOB INCLUDE_FILES
+FILE(GLOB PUBLIC_INCLUDE_FILES
         ../vendor/nlohmann/*.hpp
-        ../vendor/crypto/*.h
-        ../vendor/crypto/*.hpp
-        ../vendor/ed25519/src/*.h
+        ../vendor/mile-crypto/include/*.h
         ../include/*.hpp
         )
 
+FILE(GLOB INCLUDE_FILES
+        ${PUBLIC_INCLUDE_FILES}
+        )
+
 FILE(GLOB SOURCES
-        ../vendor/crypto/*.cpp
-        ../vendor/crypto/*.c
-        ../vendor/ed25519/src/*.c
+        ../vendor/mile-crypto/src/*.c
+        ../vendor/mile-crypto/src/*.cpp
+        ../vendor/mile-crypto/src/ed25519/src/*.c
         ../src/*.cpp
         ../src/transactions_wrapper/*.cpp
         )
@@ -50,7 +53,7 @@ target_include_directories(
         PUBLIC
         ../include
         ../vendor/nlohmann
-        ../vendor/crypto
+        ../vendor/mile-crypto/include
 )
 
 set(config_install_dir "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
@@ -74,14 +77,7 @@ configure_package_config_file(
         INSTALL_DESTINATION "${config_install_dir}"
 )
 
-install(FILES ${INCLUDE_FILES} DESTINATION include)
-install(TARGETS ${PROJECT_LIB}
-        DESTINATION lib)
-install(FILES ${project_config} ${version_config} DESTINATION lib/cmake/milecsa)
-
-install(
-        FILES "${project_config}" "${version_config}"
-        DESTINATION "${config_install_dir}"
-)
-
-install(FILES cmake/${PROJECT_LIB}.cmake DESTINATION lib/cmake/milecsa)
+install(TARGETS ${PROJECT_LIB}   DESTINATION lib)
+install(FILES   ${PUBLIC_INCLUDE_FILES} DESTINATION include)
+install(FILES   ${project_config} ${version_config} DESTINATION lib/cmake/milecsa)
+install(FILES   cmake/${PROJECT_LIB}.cmake DESTINATION lib/cmake/milecsa)

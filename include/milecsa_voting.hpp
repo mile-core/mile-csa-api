@@ -26,25 +26,34 @@ namespace milecsa{
                                                            const uint256_t blockId,
                                                            const uint64_t transactionId,
 
-                                                           unsigned short assetCode,
-                                                           const std::string &rate,
+                                                           const milecsa::token &asset,
+                                                           float rate,
 
                                                            const milecsa::ErrorHandler &error = default_error_handler
             ) {
 
-                if (rate.empty()) { // TODO correct validation
+                std::string rate_string =  asset.value_to_string(rate);
+
+                if (rate <= 0.0f || rate_string.empty()) {
                     error(milecsa::result::EMPTY,
-                          ErrorFormat("MILE rate must be float point type"));
+                          ErrorFormat("MILE rate must be over then 0"));
                     return std::nullopt;
                 }
 
-                auto request = Vote<T>(keyPair, blockId, transactionId, assetCode);
+                if (asset.code == milecsa::assets::NILL.code) {
+                    error(milecsa::result::NOT_SUPPORTED,
+                          ErrorFormat("MILE asset must be %s or %s",  milecsa::assets::XDR.name.c_str(),milecsa::assets::MILE.name.c_str()));
+                    return std::nullopt;
+                }
+
+                auto request = Vote<T>(keyPair, blockId, transactionId, asset);
+
 
                 request.setup(
                         "VotingCoursePoll",
 
                         [&](DigestCalculator &calculator) {
-                            calculator.Update(rate, rate.size());
+                            calculator.Update(rate_string, rate_string.size());
                         },
 
                         [&](T &parameters,
@@ -58,13 +67,18 @@ namespace milecsa{
                             /// It would be better to add
                             /// parameters["rate"] = rate;
                             ///
-                            parameters["asset"] = {{"amount", rate},
-                                                   {"code",   assetCode}};
+                            parameters["asset"] = {{"amount", rate_string},
+                                                   {"code",   asset.code}};
                         });
 
                 return std::make_optional(request);
             }
         };
+
+        /**
+         * Json Vote type
+         */
+        typedef std::optional<milecsa::transaction::Vote<nlohmann::json>> JsonVote;
     }
 }
 

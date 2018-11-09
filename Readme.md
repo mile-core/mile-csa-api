@@ -72,6 +72,27 @@ Build addon milecsa mudule on **mac os**:
 1. Ubuntu 18.4
 1. OSX 10.13, XCode10
 
+
+### Token properties
+
+```cpp
+    #include "milecsa_light_api.hpp"
+    
+    // available tokens: 
+    milecsa::token stable = milecsa::assets::XDR;
+    milecsa::token index  = milecsa::assets::MILE;
+
+    // Properties
+    std::cout << "Name:      " << stable.name;
+    std::cout << "Code:      " << stable.code;
+    std::cout << "Precision: " << stable.precision;
+
+    // Fixed point conversion to string presentation    
+    std::string amount = asset.value_to_string(100.1f);
+     
+
+```
+
 ### Wallet public/private keys Pair class
 
 ```cpp
@@ -232,14 +253,18 @@ Build addon milecsa mudule on **mac os**:
 
     using json = nlohmann::json ;
     using transfer = milecsa::transaction::Transfer<json>;
+    
+    uint256_t last_block_id = get_current_block_id();
 
+    srand(time(0));
+    
     if (auto trx_body = transfer::CreateRequest(
                 keyPair,
                 destination,
-                0, // block id
-                0, // trx id
-                0, // asset code
-                "10")->get_body()){
+                last_block_id, // block id
+                rand(),        // trx id
+                milecsa::assets::XDR, // asset
+                10.0f)->get_body()){
 
          auto json_body = trx_body->dump();
     }
@@ -274,15 +299,18 @@ Build addon milecsa mudule on **mac os**:
     std::string digest;
     std::string signature;
 
+    float amount = 100.1f
+    float fee = 0.0f // always == 0.0
+
     if (auto transfer = milecsa::transaction::Transfer<json>::CreateRequest(
             keyPair,
             dstWalletPublicKey,
             blockId,
             transactionId,
-            assetCode,
+            milecsa::assets::XDR,
             amount,
-            description,
             fee,
+            description,
             error)) {
 
         //
@@ -302,7 +330,7 @@ Build addon milecsa mudule on **mac os**:
     }
 ```
 
-#### XDR Emission request. Simple getting transaction body
+#### XDR Direct emission request. Simple getting transaction body
 ```cpp
 
     #include "milecsa.hpp"
@@ -311,13 +339,45 @@ Build addon milecsa mudule on **mac os**:
     using json = nlohmann::json ;
     using emission = milecsa::transaction::Emission<json>;
 
+    uint256_t last_block_id = get_current_block_id();
+
+    srand(time(0));
+
     if (auto trx_body = emission::CreateRequest(
                 keyPair,
-                destination,
-                0, // block id
-                0, // trx id
-                0, // asset code
-                "100")->get_body()){
+                last_block_id, // block id 
+                rand(),        // trx id
+                milecsa::assets::MILE // asset code must be MILE
+                )->get_body()){
+
+         auto json_body = trx_body->dump();
+    }
+    else {
+        //
+        // Handle error
+        //
+    }
+```
+
+#### XDR Reverse emission request. Simple getting transaction body
+```cpp
+
+    #include "milecsa.hpp"
+    #include "json.hpp"
+
+    using json = nlohmann::json ;
+    using emission = milecsa::transaction::Emission<json>;
+
+    uint256_t last_block_id = get_current_block_id();
+
+    srand(time(0));
+
+    if (auto trx_body = emission::CreateRequest(
+                keyPair,
+                last_block_id, // block id 
+                rand(),         // trx id
+                milecsa::assets::XDR // asset code must be XDR
+                )->get_body()){
 
          auto json_body = trx_body->dump();
     }

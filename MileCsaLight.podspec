@@ -14,7 +14,7 @@ Pod::Spec.new do |s|
   s.platform     = :ios
   s.platform     = :osx
 
-  s.ios.deployment_target = "10.0"
+  s.ios.deployment_target = "11.0"
   s.osx.deployment_target = "10.12"
  
   s.swift_version = "4.2"
@@ -23,11 +23,13 @@ Pod::Spec.new do |s|
 
   s.source_files  = "platforms/ios/mile-ios-sdk/Classes/*.{h,m,mm}",
                     "src/*.cpp",
-                    "src/transactions_wrapper/*.cpp",
                     "include/**/*.hpp",
                     "vendor/nlohmann/*.{hpp}",
-                    "vendor/crypto/*.{cpp,c,h}",
-                    "vendor/ed25519/src/*.{cpp,c,h}",
+                    "vendor/mile-crypto/include/*.{hpp,h}",
+                    "vendor/mile-crypto/src/*.{cpp,c}",
+                    "vendor/mile-crypto/src/private_include/*.{h,hpp}",
+                    "vendor/mile-crypto/src/ed25519/src/*.{c,h}",
+                    "vendor/mile-crypto/src/ed25519/include/*.{h}",
   s.exclude_files = "test",
                     "wasm"
 

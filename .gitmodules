@@ -1,0 +1,4 @@
+[submodule "vendor/mile-crypto"]
+	path = vendor/mile-crypto
+	url = https://lotus-mile@github.com/mile-core/mile-crypto.git
+	branch = master

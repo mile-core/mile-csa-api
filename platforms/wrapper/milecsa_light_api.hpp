@@ -135,9 +135,9 @@ namespace milecsa {
                                        const uint64_t  transactionId,
 
                                        unsigned short asset,
-                                       const std::string &amount,
+                                       float amount,
+                                       float fee,
                                        const std::string &description,
-                                       const std::string &fee,
 
                 //
                 // Signed json
@@ -154,8 +154,6 @@ namespace milecsa {
          * @param blockId
          * @param transactionId
          * @param asset
-         * @param amount
-         * @param description
          * @param fee
          * @param transaction
          * @param digest
@@ -163,15 +161,12 @@ namespace milecsa {
          * @return
          */
         light::result prepare_emission(const std::string &privateKey,
-                                       const std::string &dstWalletPublicKey,
 
                                        const std::string &blockId,
                                        const uint64_t  transactionId,
 
                                        unsigned short asset,
-                                       const std::string &amount,
-                                       const std::string &description,
-                                       const std::string &fee,
+                                       float  fee,
 
                 //
                 // Signed json
@@ -201,7 +196,7 @@ namespace milecsa {
                                             const uint64_t  transactionId,
 
                                             unsigned short asset,
-                                            const std::string &amount,
+                                            float amount,
 
                 //
                 // Signed json
@@ -254,7 +249,7 @@ namespace milecsa {
                                                    const uint64_t    transactionId,
 
                                                    unsigned short asset,
-                                                   const std::string &rate,
+                                                   float rate,
 
                                                    std::string &transaction,
                                                    std::string &digest,

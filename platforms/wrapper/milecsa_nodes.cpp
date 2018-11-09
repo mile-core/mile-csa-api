@@ -14,7 +14,7 @@ milecsa::light::result milecsa::transaction::prepare_register_node(const std::st
                                                             const uint64_t  transactionId,
 
                                                             unsigned short assetCode,
-                                                            const std::string &amount,
+                                                            float amount,
         //
         // Signed json
         //
@@ -47,7 +47,7 @@ milecsa::light::result milecsa::transaction::prepare_register_node(const std::st
             nodeAddress,
             bid,
             trx_id,
-            assetCode,
+            milecsa::assets::TokenFromCode(assetCode),
             amount,
             error)){
 

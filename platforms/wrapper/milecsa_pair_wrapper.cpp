@@ -4,11 +4,8 @@
 #include <string>
 #include <string.h>
 
-#include "ge.h"
-#include "crypto_types.h"
-#include "crypto.h"
+#include "mile_crypto.h"
 #include "milecsa_result.hpp"
-#include "milecsa_utils.hpp"
 #include "milecsa_pair.hpp"
 
 milecsa::light::result milecsa::keys::generate(

@@ -3,22 +3,24 @@
 //
 
 #include "milecsa_light_api.hpp"
-#include "milecsa_voting.hpp"
+#include "milecsa_emission.hpp"
 
 using json = nlohmann::json;
 
-milecsa::light::result milecsa::transaction::prepare_vote_for_asstes_rate(const std::string &privateKey,
+milecsa::light::result milecsa::transaction::prepare_emission(const std::string &privateKey,
 
-                                                                   const std::string &blockId,
-                                                                   const uint64_t  transactionId,
+                                                              const std::string &blockId,
+                                                              const uint64_t  transactionId,
 
-                                                                   unsigned short assetCode,
-                                                                   const std::string &rate,
+                                                              unsigned short assetCode,
+                                                              float fee,
+        //
+        // Signed json
+        //
+                                                              std::string &transaction,
+                                                              std::string &digest,
+                                                              std::string &errorMessage) {
 
-                                                                   std::string &transaction,
-                                                                   std::string &digest,
-                                                                   std::string &errorMessage)
-{
     milecsa::light::result result;
 
     auto error = [&errorMessage, &result](milecsa::result code, const std::string &error) mutable -> void {
@@ -39,12 +41,12 @@ milecsa::light::result milecsa::transaction::prepare_vote_for_asstes_rate(const 
 
     uint64_t trx_id = transactionId == default_transaction_id ? (uint64_t)rand() : transactionId;
 
-    if(auto emission = milecsa::transaction::Vote<json>::CreateRequest(
+    if(auto emission = milecsa::transaction::Emission<json>::CreateRequest(
             *keyPair,
             bid,
             trx_id,
-            assetCode,
-            rate,
+            milecsa::assets::TokenFromCode(assetCode),
+            fee,
             error)){
 
         if (auto trx = emission->get_body()) transaction = trx->dump();
@@ -55,3 +57,4 @@ milecsa::light::result milecsa::transaction::prepare_vote_for_asstes_rate(const 
 
     return result;
 }
+

@@ -4,6 +4,7 @@
 
 #include <functional>
 #include <optional>
+#include "mile_crypto.h"
 #include "milecsa_module_nodejs.hpp"
 
 namespace milecsa::nodejs {
@@ -24,37 +25,7 @@ namespace milecsa::nodejs {
 
     void __transaction(const Nan::FunctionCallbackInfo<v8::Value>& info, int method) {
 
-        if (!info[0]->IsObject()){
-            return Nan::ThrowError(Nan::New("milecsa error: Transaction - expected argument 0 wallet pair").ToLocalChecked());
-        }
-
-        if (!info[1]->IsString()){
-            return Nan::ThrowError(Nan::New("milecsa error: Transaction - expected argument 1 destination public key").ToLocalChecked());
-        }
-
-        if (!info[2]->IsString()){
-            return Nan::ThrowError(Nan::New("milecsa error: Transaction - expected argument 2 block id").ToLocalChecked());
-        }
-
-        if (!info[3]->IsString()){
-            return Nan::ThrowError(Nan::New("milecsa error: Transaction - expected argument 3 trx id").ToLocalChecked());
-        }
-
-        if (!info[4]->IsNumber()){
-            return Nan::ThrowError(Nan::New("milecsa error: Transaction - expected argument 4 asset code").ToLocalChecked());
-        }
-
-        if (!info[5]->IsString()){
-            return Nan::ThrowError(Nan::New("milecsa error: Transaction - expected argument 5 amount").ToLocalChecked());
-        }
-
-        if (!info[6]->IsString()){
-            return Nan::ThrowError(Nan::New("milecsa error: Transaction - expected argument 5 description").ToLocalChecked());
-        }
-
-        if (!info[7]->IsString()){
-            return Nan::ThrowError(Nan::New("milecsa error: Transaction - expected argument 5 fee").ToLocalChecked());
-        }
+        int index = -1;
 
         v8::Local<v8::Object> jsonObj = info[0]->ToObject();
 
@@ -64,13 +35,26 @@ namespace milecsa::nodejs {
         std::string public_key;
         std::string private_key;
 
-        std::string dstWalletPublicKey = *v8::String::Utf8Value(v8::Local<v8::String>::Cast(info[1]));
-        std::string blockId = *v8::String::Utf8Value(v8::Local<v8::String>::Cast(info[2]));
-        std::string transactionId = *v8::String::Utf8Value(v8::Local<v8::String>::Cast(info[3]));
-        unsigned short assetCode = info[4]->NumberValue();
-        std::string amount = *v8::String::Utf8Value(v8::Local<v8::String>::Cast(info[5]));
-        std::string desc = *v8::String::Utf8Value(v8::Local<v8::String>::Cast(info[6]));
-        std::string fee = *v8::String::Utf8Value(v8::Local<v8::String>::Cast(info[7]));
+        std::string dstWalletPublicKey;
+        std::string blockId;
+        std::string transactionId;
+
+        unsigned short assetCode ;
+        float amount;
+        float fee;
+
+        std::string desc;
+
+        if (!info[++index]->IsObject()){
+            return Nan::ThrowError(Nan::New(
+                    ErrorFormat("Transaction - expected argument %i wallet pair",index))
+                                           .ToLocalChecked());
+        }
+
+        jsonObj = info[index]->ToObject();
+
+        pk_name = Nan::New("public_key").ToLocalChecked();
+        pvk_name = Nan::New("private_key").ToLocalChecked();
 
         if (Nan::HasOwnProperty(jsonObj, pk_name).FromJust()) {
             auto  pkValue = Nan::Get(jsonObj, pk_name).ToLocalChecked();
@@ -80,6 +64,63 @@ namespace milecsa::nodejs {
             Nan::ThrowError(Nan::New("milecsa error: Transaction - pair error").ToLocalChecked());
         }
 
+        if (method == 0) {
+            if (!info[++index]->IsString()) {
+                return Nan::ThrowError(Nan::New(
+                        ErrorFormat("Transaction - expected argument %i destination public key", index).c_str())
+                                               .ToLocalChecked());
+            }
+
+            dstWalletPublicKey = *v8::String::Utf8Value(v8::Local<v8::String>::Cast(info[index]));
+        }
+
+        if (!info[++index]->IsString()){
+            return Nan::ThrowError(Nan::New(
+                    ErrorFormat("Transaction - expected argument %i block id",index).c_str())
+                                           .ToLocalChecked());
+        }
+        blockId = *v8::String::Utf8Value(v8::Local<v8::String>::Cast(info[index]));
+
+        if (!info[++index]->IsString()){
+            return Nan::ThrowError(Nan::New(
+                    ErrorFormat("Transaction - expected argument %i trx id",index).c_str())
+                                           .ToLocalChecked());
+        }
+        transactionId = *v8::String::Utf8Value(v8::Local<v8::String>::Cast(info[index]));
+
+        if (!info[++index]->IsNumber()){
+            return Nan::ThrowError(Nan::New(
+                    ErrorFormat("Transaction - expected argument %i asset code",index).c_str())
+                                           .ToLocalChecked());
+        }
+        assetCode = info[index]->NumberValue();
+
+        if (method == 0) {
+            if (!info[++index]->IsNumber()) {
+                return Nan::ThrowError(Nan::New(
+                        ErrorFormat("Transaction - expected argument %i amount", index).c_str())
+                                               .ToLocalChecked());
+            }
+            amount = info[index]->NumberValue();
+        }
+
+        if (!info[++index]->IsNumber()){
+            return Nan::ThrowError(Nan::New(
+                    ErrorFormat("Transaction - expected argument %i fee",index).c_str())
+                                           .ToLocalChecked());
+        }
+        fee = info[index]->NumberValue();
+
+        if (method == 0) {
+            if (!info[++index]->IsString()) {
+                return Nan::ThrowError(Nan::New(
+                        ErrorFormat("Transaction - expected argument %i description", index))
+                                               .ToLocalChecked());
+            }
+            desc = *v8::String::Utf8Value(v8::Local<v8::String>::Cast(info[index]));
+        }
+
+
         if (Nan::HasOwnProperty(jsonObj, pvk_name).FromJust()) {
             auto  pkValue = Nan::Get(jsonObj, pvk_name).ToLocalChecked();
             private_key = std::string(*Nan::Utf8String(pkValue->ToString()));
@@ -87,7 +128,6 @@ namespace milecsa::nodejs {
         else {
             Nan::ThrowError(Nan::New("milecsa error: Transaction - pair error").ToLocalChecked());
         }
-
 
         uint256_t bid;
         uint64_t tid;
@@ -99,10 +139,10 @@ namespace milecsa::nodejs {
             return;
         }
 
-        using transfer = milecsa::transaction::Transfer<nlohmann::json>;
-        using emission = milecsa::transaction::Emission<nlohmann::json>;
+        using transfer = milecsa::transaction::JsonTransfer;
+        using emission = milecsa::transaction::JsonEmission;
 
-        std::optional<milecsa::transaction::Request<nlohmann::json>> request;
+        milecsa::transaction::JsonRequest request;
 
         if (method == 0)
             request = transfer::CreateRequest(
@@ -110,20 +150,17 @@ namespace milecsa::nodejs {
                     dstWalletPublicKey,
                     bid,
                     tid,
-                    assetCode,
+                    milecsa::assets::TokenFromCode(assetCode),
                     amount,
-                    desc,
                     fee,
+                    desc,
                     error_handler);
         else
             request = emission::CreateRequest(
                     *p,
-                    dstWalletPublicKey,
                     bid,
                     tid,
-                    assetCode,
-                    amount,
-                    desc,
+                    milecsa::assets::TokenFromCode(assetCode),
                     fee,
                     error_handler);
 
