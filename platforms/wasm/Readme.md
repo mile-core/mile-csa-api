@@ -249,13 +249,13 @@ getLastTransactions( publicKey, count ) {
 
 ### Get current block id
 ```javascript
-getCurrentBlockId( publicKey, count ) {
+getCurrentBlockId( ) {
   return axios.post(
     "https://node002.testnet.mile.global",
     {
       method: "get-current-block-id",
-      params: {"public-key": publicKey, count },
-      id: 3,
+      params: {},
+      id: 6,
       jsonrpc: "2.0",
       version: "1.0"
     }
@@ -263,7 +263,7 @@ getCurrentBlockId( publicKey, count ) {
 }
 
 //
-//  response example: {"id":"3","jsonrpc":"2.0","result":{"id":42},"version":"0.0"}
+//  response example: {"id":"6","jsonrpc":"2.0","result":{"id":42},"version":"0.0"}
 //
 // 
 // id MUST be used in transaction builder as block id
