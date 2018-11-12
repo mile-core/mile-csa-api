@@ -218,14 +218,14 @@ getWalletSate( publicKey, count ) {
     {
       method: "get-wallet-state",
       params: {"public-key": publicKey},
-      id: 1,
+      id: 3,
       jsonrpc: "2.0",
       version: "1.0"
     }
   );
 }
 //
-//  response example: {"id":"1","jsonrpc":"2.0","result":{"balance":[{"amount":"432.67","code":"0"}],"exist":"1","last-transaction-id":"16808","tags":""},"version":"0.0"}
+//  response example: {"id":"3","jsonrpc":"2.0","result":{"balance":[{"amount":"432.67","code":"0"}],"exist":"1","preferred-transaction-id":"16808","tags":""},"version":"0.0"}
 //
 // 
 // last-transaction-id can be used in transaction builder as transaction id
@@ -238,7 +238,7 @@ getLastTransactions( publicKey, count ) {
     "https://node002.testnet.mile.global",
     {
       method: "get-wallet-transactions",
-      params: {"public-key": publicKey, "limit": 10 },
+      params: {"public-key": publicKey, "limit": count },
       id: 3,
       jsonrpc: "2.0",
       version: "1.0"
@@ -249,13 +249,13 @@ getLastTransactions( publicKey, count ) {
 
 ### Get current block id
 ```javascript
-getCurrentBlockId( publicKey, count ) {
+getCurrentBlockId( ) {
   return axios.post(
     "https://node002.testnet.mile.global",
     {
       method: "get-current-block-id",
-      params: {"public-key": publicKey, count },
-      id: 3,
+      params: {},
+      id: 6,
       jsonrpc: "2.0",
       version: "1.0"
     }
@@ -263,7 +263,7 @@ getCurrentBlockId( publicKey, count ) {
 }
 
 //
-//  response example: {"id":"3","jsonrpc":"2.0","result":{"id":42},"version":"0.0"}
+//  response example: {"id":"6","jsonrpc":"2.0","result":{"id":42},"version":"0.0"}
 //
 // 
 // id MUST be used in transaction builder as block id
