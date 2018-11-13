@@ -11,11 +11,11 @@
     */
     var error = new Module.Error()
     
-    if (error.hasError) {
+    if( error.hasError ) {
         //
         // Handle error
         //
-        // console.log("Error: " + error.what);
+        // console.log( "Error: " + error.what )
     }
 
 ```
@@ -27,12 +27,13 @@
     /**
     * Create a new wallet pair with random keys  
     */
-    var pair = new Module.Pair.Random(error)
+    var pair = new Module.Pair.Random( error )
     
-    if (error.hasError) {
+    if( error.hasError ) {
         //
         // Handle Wallet pair generator error        
         //
+        // console.log( "Error: " + error.what )
     }
     else {
         // access to public key:
@@ -51,12 +52,13 @@
 
 ```javascript
     var private_key = "....."
-    var pair = new Module.Pair.FromPrivateKey(private_key,error)
+    var pair = new Module.Pair.FromPrivateKey( private_key, error )
     
-    if (error.hasError) {
+    if( error.hasError ) {
         //
         // Handle Wallet pair generator error        
         //
+        // console.log( "Error: " + error.what )
     }
     else {
         // access to public key:
@@ -79,10 +81,11 @@
     //
     // public key from INPUT FORM 
     //
-    if(!Module.Pair.ValidatePublicKey(field.public_key, error)){
+    if( !Module.Pair.ValidatePublicKey( field.public_key, error ) ) {
         //
         // Handle error
         //
+        // console.log( "Error: " + error.what )
     }
 ````
 
@@ -93,10 +96,11 @@
     // private key from INPUT FORM 
     //
 
-    if(!Module.Pair.ValidatePrivateKey(field.private_key, error)){
+    if( !Module.Pair.ValidatePrivateKey( field.private_key, error ) ) {
         //
         // Handle error
         //
+        // console.log( "Error: " + error.what )
     }
 ```
 
@@ -110,17 +114,18 @@
 ### Prepare asset transfer
 ```javascript
 
-     var ret =  transaction.Transfer(
-            pair,                    // pair
+     var ret = transaction.Transfer(
+            pair,                    // Keys pair
             destination.public_key,  // destination
             "2",                     // block id, @see: getCurrentBlockId bellow
-            "0",                     // transaction id
+            "0",                     // transaction id, @see: getWalletSate bellow
             0,                       // asset code
             1000.0,                  // amount
             0.0,                     // fee, always 0.0
             "memo field",            // description
-            error) 
-     if(ret != Module.result.OK){
+            error
+     ) 
+     if( ret != Module.result.OK ) {
          //
          // Handle error
          //
@@ -143,14 +148,15 @@
 ### Prepare emission transaction
 ```javascript
 
-     var ret =  transaction.Emission(
-            pair,                    // pair
+     var ret = transaction.Emission(
+            pair,                    // Keys pair
             "2",                     // block id, @see: getCurrentBlockId bellow
-            "0",                     // transaction id
+            "0",                     // transaction id, @see: getWalletSate bellow
             0,                       // asset code
             0,                       // fee, always ""
-            error) 
-     if(ret != Module.result.OK){
+            error
+     ) 
+     if( ret != Module.result.OK ) {
          //
          // Handle error
          //
@@ -179,91 +185,90 @@ You can use any of node. In examples we use non-existing **example address**: ht
 
 ### Wallet state
 ```javascript
-getBalance( publicKey ) {
+getWalletSate( publicKey, count ) {
   return axios.post(
-    "https://node002.testnet.mile.global",
+    "https://example.i.mile.global",
     {
       method: "get-wallet-state",
-      params: { public_key: publicKey },
+      params: { "public-key": publicKey },
       id: 1,
       jsonrpc: "2.0",
       version: "1.0"
     }
-  );
+  )
 }
+//
+//  response example: {
+//    "id": "1",
+//    "jsonrpc": "2.0",
+//    "result": {
+//      "balance": [ { "amount": "432.67", "code": "0" } ],
+//      "exist": "1",
+//      "preferred-transaction-id": "16808",
+//      "tags": ""
+//    },
+//    "version": "0.0"
+//  }
+//
+// 
+// preferred-transaction-id can be used in transaction builder as a transaction id
 ```
 
 ### Send transaction
 ```javascript
-// transactionData created by create_transaction_transfer_assets function above
+// transactionData created by transaction.Transfer or transaction.Emission functions above
 sendTransaction( transaction_body ) {
   return axios.post(
-    "https://node002.testnet.mile.global",
+    "https://example.i.mile.global",
     {
       method: "send-transaction",
-      params: transaction_body ,
+      params: transaction_body,
       id: 2,
       jsonrpc: "2.0",
       version: "1.0"
     }
-  );
+  )
 }
-```
-
-### Get wallet state
-```javascript
-getWalletSate( publicKey, count ) {
-  return axios.post(
-    "https://node002.testnet.mile.global",
-    {
-      method: "get-wallet-state",
-      params: {"public-key": publicKey},
-      id: 3,
-      jsonrpc: "2.0",
-      version: "1.0"
-    }
-  );
-}
-//
-//  response example: {"id":"3","jsonrpc":"2.0","result":{"balance":[{"amount":"432.67","code":"0"}],"exist":"1","preferred-transaction-id":"16808","tags":""},"version":"0.0"}
-//
-// 
-// last-transaction-id can be used in transaction builder as transaction id
 ```
 
 ### Get last transactions
 ```javascript
 getLastTransactions( publicKey, count ) {
   return axios.post(
-    "https://node002.testnet.mile.global",
+    "https://example.i.mile.global",
     {
       method: "get-wallet-transactions",
-      params: {"public-key": publicKey, "limit": count },
+      params: { "public-key": publicKey, "limit": count },
       id: 3,
       jsonrpc: "2.0",
       version: "1.0"
     }
-  );
+  )
 }
 ```
 
 ### Get current block id
 ```javascript
-getCurrentBlockId( ) {
+getCurrentBlockId() {
   return axios.post(
-    "https://node002.testnet.mile.global",
+    "https://example.i.mile.global",
     {
       method: "get-current-block-id",
       params: {},
-      id: 6,
+      id: 4,
       jsonrpc: "2.0",
       version: "1.0"
     }
-  );
+  )
 }
 
 //
-//  response example: {"id":"6","jsonrpc":"2.0","result":{"id":42},"version":"0.0"}
+//  response example: {
+//    "id": "4",
+//    "jsonrpc": "2.0",
+//    "result": { "id": 42 },
+//    "version": "1.0"
+//  }
 //
 // 
 // id MUST be used in transaction builder as block id
