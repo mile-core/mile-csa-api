@@ -21,7 +21,7 @@
 namespace milecsa{
     namespace transaction {
 
-        constexpr const size_t description_max_length = 64;
+        constexpr const size_t description_max_length = 62;
 
         /**
          * Digest calculator closure
