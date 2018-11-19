@@ -125,6 +125,38 @@ inline NSError *error2NSError(const std::string &errorMessage, milecsa::result c
 }
 @end
 
+
+NSDictionary* object_to_dict(std::optional<nlohmann::json> trx,
+                             NSError *__autoreleasing  _Null_unspecified *error){
+    NSMutableDictionary *data = [NSMutableDictionary dictionaryWithCapacity:8];
+    
+    for (nlohmann::json::iterator it = trx->begin(); it != trx->end(); ++it) {
+        
+        NSString *key = [NSString stringWithUTF8String:it.key().c_str()];
+        nlohmann::json value = it.value();
+        
+        id object = nil;
+        
+        if (value.is_object()){
+            object = object_to_dict(std::make_optional(value), error);
+        }
+        else if (value.is_string()){
+            object = [NSString stringWithUTF8String:value.get<std::string>().c_str()];
+        }
+        else if (value.is_number()) {
+            object = [NSNumber numberWithInt:value.get<int>()];
+        }
+        else if (value.is_boolean()) {
+            object = [NSNumber numberWithBool:value.get<bool>()];
+        }
+        if (object==nil){
+            return nil;
+        }
+        [data setValue:object forKey:key];
+    }
+    return data;
+}
+
 @implementation MileCsaTransaction
 
 +(nullable NSDictionary*) base_transfer:(int)type
@@ -158,7 +190,7 @@ inline NSError *error2NSError(const std::string &errorMessage, milecsa::result c
     using  emission = milecsa::transaction::JsonEmission;
     
     switch (type) {
-        case 0:
+            case 0:
             transaction = transfer::CreateRequest(
                                                   pair,
                                                   [destPublicKey UTF8String],
@@ -170,7 +202,7 @@ inline NSError *error2NSError(const std::string &errorMessage, milecsa::result c
                                                   desc,
                                                   _error);
             break;
-        case 1:
+            case 1:
             transaction = emission::CreateRequest(
                                                   pair,
                                                   ui,
@@ -186,37 +218,7 @@ inline NSError *error2NSError(const std::string &errorMessage, milecsa::result c
     
     if(transaction){
         if (auto trx = transaction->get_body()){
-            NSMutableDictionary *data = [NSMutableDictionary dictionaryWithCapacity:8];
-            
-            for (nlohmann::json::iterator it = trx->begin(); it != trx->end(); ++it) {
-
-                NSString *key = [NSString stringWithUTF8String:it.key().c_str()];
-                nlohmann::json value = it.value();
-                
-                id object = nil;
-                
-                if (value.is_object()){
-                    NSData *data = [[NSString stringWithUTF8String:value.dump().c_str()]
-                                    dataUsingEncoding:NSUTF8StringEncoding];
-                    object = [NSJSONSerialization JSONObjectWithData:data
-                                                             options:NSJSONReadingMutableContainers|NSJSONReadingAllowFragments
-                                                               error:error];
-                }
-                else if (value.is_string()){
-                    object = [NSString stringWithUTF8String:value.dump().c_str()];
-                }
-                else if (value.is_number()) {
-                    object = [NSNumber numberWithInt:value.get<int>()];
-                }
-                else if (value.is_boolean()) {
-                    object = [NSNumber numberWithBool:value.get<bool>()];
-                }
-                if (object==nil){
-                    return nil;
-                }
-                [data setValue:object forKey:key];
-            }       
-            return data;
+            return object_to_dict(trx, error);
         }
     }
     return nil;
