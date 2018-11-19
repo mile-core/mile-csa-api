@@ -186,11 +186,37 @@ inline NSError *error2NSError(const std::string &errorMessage, milecsa::result c
     
     if(transaction){
         if (auto trx = transaction->get_body()){
-            NSData *data = [[NSString stringWithUTF8String:trx->dump().c_str()]
-                            dataUsingEncoding:NSUTF8StringEncoding];
-            return  [NSJSONSerialization JSONObjectWithData:data
-                                                    options:kNilOptions
-                                                      error:error];
+            NSMutableDictionary *data = [NSMutableDictionary dictionaryWithCapacity:8];
+            
+            for (nlohmann::json::iterator it = trx->begin(); it != trx->end(); ++it) {
+
+                NSString *key = [NSString stringWithUTF8String:it.key().c_str()];
+                nlohmann::json value = it.value();
+                
+                id object = nil;
+                
+                if (value.is_object()){
+                    NSData *data = [[NSString stringWithUTF8String:value.dump().c_str()]
+                                    dataUsingEncoding:NSUTF8StringEncoding];
+                    object = [NSJSONSerialization JSONObjectWithData:data
+                                                             options:NSJSONReadingMutableContainers|NSJSONReadingAllowFragments
+                                                               error:error];
+                }
+                else if (value.is_string()){
+                    object = [NSString stringWithUTF8String:value.dump().c_str()];
+                }
+                else if (value.is_number()) {
+                    object = [NSNumber numberWithInt:value.get<int>()];
+                }
+                else if (value.is_boolean()) {
+                    object = [NSNumber numberWithBool:value.get<bool>()];
+                }
+                if (object==nil){
+                    return nil;
+                }
+                [data setValue:object forKey:key];
+            }       
+            return data;
         }
     }
     return nil;
