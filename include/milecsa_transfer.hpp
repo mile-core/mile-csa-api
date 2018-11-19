@@ -8,6 +8,7 @@
 #include "milecsa_transaction.hpp"
 #include <string>
 #include <functional>
+#include <algorithm>
 
 namespace milecsa{
     namespace transaction{
@@ -44,9 +45,12 @@ namespace milecsa{
                                                                      const milecsa::token &asset,
                                                                      float amount,
                                                                      float fee = 0,
-                                                                     const std::string &description = "",
+                                                                     const std::string &_description = "",
                                                                      const milecsa::ErrorHandler &error = default_error_handler
             ){
+
+                std::string description = _description
+                        .substr(0,std::min(_description.size(), description_max_length));
 
                 auto amount_string = asset.value_to_string(amount);
 

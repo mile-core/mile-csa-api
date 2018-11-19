@@ -37,7 +37,9 @@ struct Wallet: public MIleTestTransaction {
                 0, // block id
                 0, // trx id
                 milecsa::assets::XDR, // asset code
-                0.1)->get_body()){
+                0.1,
+                0,
+                "Y29uc3QgcGF0aCA9IHJlcXVpcmUoJ3BhdGgnKTsKCm1vZHVsZS5leHBvcnRzID0gewogIGRldlNlcnZlcjogewogICAgcHJveHk6ICdodHRwczovL2V4cGxvcmVyLnRlc3RuZXQubWlsZS5nbG9iYWwnLAogICAgLy9wcm94eTogJ2h0dHA6Ly9sb2NhbGh")->get_body()){
             BOOST_TEST_MESSAGE("Simple transaction : " + trx_body->dump());
             return true;
         }
