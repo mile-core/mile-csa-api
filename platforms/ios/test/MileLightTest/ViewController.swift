@@ -53,9 +53,12 @@ class ViewController: UIViewController {
                                                     fee: 0.0
                 ) as! [String: Any]
             
-            Swift.print("Wallet transfer: ", t)
+            let st = String(data: try JSONSerialization.data(withJSONObject: t, options: .sortedKeys), encoding: String.Encoding.utf8)
+            let se = String(data: try JSONSerialization.data(withJSONObject: e, options: .sortedKeys), encoding: String.Encoding.utf8)
+
+            Swift.print("Wallet transfer: \(String(describing: st))")
             
-            Swift.print("Wallet emission: ", e)
+            Swift.print("Wallet emission: \(String(describing: se))")
             
         }
         catch let error {

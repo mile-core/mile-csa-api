@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
   s.name         = "MileCsaLight"
-  s.version      = "0.5"
+  s.version      = "1.1.2"
   s.summary      = "MileCsaLight is a SDK to create Mile Core Wallet"
   s.description  = "MileCsaLight is a SDK helps to generate Mile wallet keys: Public and Private. Also the SDK gives api to sign client transactions."                   
 
