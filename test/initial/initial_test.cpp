@@ -33,5 +33,8 @@ BOOST_AUTO_TEST_CASE( Equal )
     BOOST_CHECK_EQUAL(milecsa::assets::MILE.value_to_string(1.00001f), "1.00001");
     BOOST_CHECK_EQUAL(milecsa::assets::MILE.value_to_string(1.99999f), "1.99999");
     BOOST_CHECK_EQUAL(milecsa::assets::MILE.value_to_string(1.999999f),"1.99999");
+    BOOST_CHECK_EQUAL(milecsa::assets::MILE.value_to_string(0.1f+0.2f),"0.30000");
+    BOOST_CHECK_EQUAL(milecsa::assets::MILE.value_to_string(.29f*100.0f),"29.00000");
+    BOOST_CHECK_EQUAL(milecsa::assets::MILE.value_to_string(0.000011f*10.0f),"0.00011");
 }
 
