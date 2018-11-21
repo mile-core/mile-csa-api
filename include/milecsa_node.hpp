@@ -43,23 +43,16 @@ namespace milecsa{
                                                                 const uint256_t blockId,
                                                                 const uint64_t  transactionId,
 
-                                                                const milecsa::token &asset,
                                                                 float  amount,
-
+                                                                float fee = 0,
                                                                 const milecsa::ErrorHandler &error = default_error_handler
             ){
 
-                auto amount_string = asset.value_to_string(amount);
+                auto amount_string = milecsa::assets::XDR.value_to_string(amount);
 
                 if (amount <=0.0f || amount_string.empty()) {
                     error(milecsa::result::EMPTY,
                           ErrorFormat("MILE amount must be over then 0"));
-                    return std::nullopt;
-                }
-
-                if (asset.code == milecsa::assets::NILL.code) {
-                    error(milecsa::result::NOT_SUPPORTED,
-                          ErrorFormat("MILE asset must be %s or %s",  milecsa::assets::XDR.name.c_str(),milecsa::assets::MILE.name.c_str()));
                     return std::nullopt;
                 }
 
@@ -86,7 +79,9 @@ namespace milecsa{
                     }
                 }
 
-                auto request = Node<T>(keyPair, blockId, transactionId, asset);
+                auto request = Node<T>(keyPair, blockId, transactionId, milecsa::assets::NILL);
+
+                auto fee_string = milecsa::assets::XDR.value_to_string(fee);
 
                 request.setup(
                         "RegisterNodeTransactionWithAmount",
@@ -98,8 +93,9 @@ namespace milecsa{
                         [&](T &parameters,
                             const std::string &publicKey) {
                             parameters["public-key"] = publicKey;
-                            parameters["asset"] = { { "amount", amount_string }, { "code", asset.code } } ;
+                            parameters["asset"] = { { "amount", amount_string }, {"code", milecsa::assets::XDR.code}} ;
                             parameters["address"] = nodeAddress;
+                            parameters["fee"] = fee_string;
                         });
 
                 return std::make_optional(request);
@@ -117,20 +113,15 @@ namespace milecsa{
              * @return
              */
             static std::optional<Node<T>> CreateUnregisterRequest(const milecsa::keys::Pair &keyPair,
-                                                                  const std::string &nodeAddress,
 
                                                                   const uint256_t blockId,
                                                                   const uint64_t  transactionId,
-                                                                  const milecsa::ErrorHandler &error
+                                                                  float fee = 0,
+                                                                  const milecsa::ErrorHandler &error = default_error_handler
             ){
 
-                if (nodeAddress.empty()) {
-                    error(milecsa::result::EMPTY,
-                          ErrorFormat("node address is empty"));
-                    return std::nullopt;
-                }
-
                 auto request = Node<T>(keyPair, blockId, transactionId);
+                auto fee_string = milecsa::assets::XDR.value_to_string(fee);
 
                 request.setup(
                         "UnregisterNodeTransaction",
@@ -139,6 +130,7 @@ namespace milecsa{
                         [&](T &parameters,
                             const std::string &publicKey) {
                             parameters["public-key"] = publicKey;
+                            parameters["fee"] = fee_string;
                         });
 
                 return std::make_optional(request);
@@ -148,7 +140,7 @@ namespace milecsa{
         /**
         * Json Node type
         */
-        typedef std::optional<milecsa::transaction::Node<nlohmann::json>> JsonNode;
+        typedef milecsa::transaction::Node<nlohmann::json> JsonNode;
     }
 }
 

@@ -78,7 +78,7 @@ namespace milecsa{
         /**
          * Json Vote type
          */
-        typedef std::optional<milecsa::transaction::Vote<nlohmann::json>> JsonVote;
+        typedef milecsa::transaction::Vote<nlohmann::json> JsonVote;
     }
 }
 
