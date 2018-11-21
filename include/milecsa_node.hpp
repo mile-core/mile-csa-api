@@ -52,7 +52,7 @@ namespace milecsa{
 
                 if (amount <=0.0f || amount_string.empty()) {
                     error(milecsa::result::EMPTY,
-                          ErrorFormat("MILE amount must be over then 0"));
+                          ErrorFormat("XDR amount must be over then 0"));
                     return std::nullopt;
                 }
 
