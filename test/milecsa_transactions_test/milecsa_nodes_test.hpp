@@ -22,8 +22,8 @@ struct Node: public MIleTestTransaction {
                 nodeAddress,
                 0,
                 0,
-                milecsa::assets::XDR,
                 1000,
+                0,
                 error_handler)) {
             BOOST_TEST_MESSAGE("Wallet    trx: " + node->get_body()->dump());
             BOOST_TEST_MESSAGE("Wallet digest: " + node->get_digest().value_or("wrong digest..."));
@@ -39,7 +39,7 @@ struct Node: public MIleTestTransaction {
 
         if(auto node = milecsa::transaction::Node<json>::CreateUnregisterRequest(
                 *keyPair,
-                nodeAddress,
+                0,
                 0,
                 0,
                 error_handler)){
