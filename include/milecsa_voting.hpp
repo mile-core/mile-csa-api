@@ -23,36 +23,30 @@ namespace milecsa{
 
             static std::optional<Vote<T>> CreateRequest(const milecsa::keys::Pair &keyPair,
 
-                                                           const uint256_t blockId,
-                                                           const uint64_t transactionId,
+                                                        const uint256_t blockId,
+                                                        const uint64_t transactionId,
 
-                                                           const milecsa::token &asset,
-                                                           float rate,
+                                                        float xdr_rate,
+                                                        float fee = 0,
 
-                                                           const milecsa::ErrorHandler &error = default_error_handler
+                                                        const milecsa::ErrorHandler &error = default_error_handler
             ) {
 
-                std::string rate_string =  asset.value_to_string(rate);
+                std::string rate_string =  milecsa::assets::XDR.value_to_string(xdr_rate);
 
-                if (rate <= 0.0f || rate_string.empty()) {
+                if (xdr_rate <= 0.0f || rate_string.empty()) {
                     error(milecsa::result::EMPTY,
                           ErrorFormat("MILE rate must be over then 0"));
                     return std::nullopt;
                 }
 
-                if (asset.code == milecsa::assets::NILL.code) {
-                    error(milecsa::result::NOT_SUPPORTED,
-                          ErrorFormat("MILE asset must be %s or %s",  milecsa::assets::XDR.name.c_str(),milecsa::assets::MILE.name.c_str()));
-                    return std::nullopt;
-                }
-
-                auto request = Vote<T>(keyPair, blockId, transactionId, asset);
-
+                auto request = Vote<T>(keyPair, blockId, transactionId, milecsa::assets::NILL);
+                auto fee_string = milecsa::assets::XDR.value_to_string(fee);
 
                 request.setup(
-                        "VotingCoursePoll",
+                        "PostTokenRate",
 
-                        [&](DigestCalculator &calculator) {
+                        [&](milecsa::keys::DigestCalculator &calculator) {
                             calculator.Update(rate_string, rate_string.size());
                         },
 
@@ -60,15 +54,9 @@ namespace milecsa{
                             const std::string &publicKey) {
 
                             parameters["public-key"] = publicKey;
-
-                            ///
-                            /// Check this out!
-                            ///
-                            /// It would be better to add
-                            /// parameters["rate"] = rate;
-                            ///
                             parameters["asset"] = {{"amount", rate_string},
-                                                   {"code",   asset.code}};
+                                                   {"code",   milecsa::assets::XDR.code}};
+                            parameters["fee"] = fee_string;
                         });
 
                 return std::make_optional(request);
