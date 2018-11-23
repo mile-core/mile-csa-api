@@ -31,6 +31,10 @@ BOOST_AUTO_TEST_CASE( Equal )
     BOOST_CHECK_EQUAL(milecsa::assets::TokenFromCode(milecsa::assets::XDR.code).code, milecsa::assets::XDR.code);
     BOOST_CHECK_EQUAL(milecsa::assets::TokenFromCode(milecsa::assets::MILE.code).code, milecsa::assets::MILE.code);
     BOOST_CHECK_EQUAL(milecsa::assets::TokenFromCode(10).code, milecsa::assets::NILL.code);
+    BOOST_CHECK_EQUAL(milecsa::assets::XDR.value_to_string(1.10001f), "1.10");
+    BOOST_CHECK_EQUAL(milecsa::assets::XDR.value_to_string(1.10901f), "1.10");
+    BOOST_CHECK_EQUAL(milecsa::assets::XDR.value_to_string(1.99901f), "1.99");
+
     BOOST_CHECK_EQUAL(milecsa::assets::MILE.value_to_string(0.00001f), "0.00001");
     BOOST_CHECK_EQUAL(milecsa::assets::MILE.value_to_string(1.00001f), "1.00001");
     BOOST_CHECK_EQUAL(milecsa::assets::MILE.value_to_string(1.99999f), "1.99999");
