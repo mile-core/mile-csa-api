@@ -21,8 +21,8 @@ struct Vote: public MIleTestTransaction {
                 *keyPair,
                 bid,
                 trx_id,
-                milecsa::assets::XDR,
                 1.1f,
+                0,
                 error_handler)){
 
             BOOST_TEST_MESSAGE("Wallet    trx: " + emission->get_body()->dump());
