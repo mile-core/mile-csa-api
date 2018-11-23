@@ -6,6 +6,8 @@
 BOOST_AUTO_TEST_CASE( Equal )
 {
 
+    std::cerr << "XDR " << milecsa::assets::XDR.value_to_string(1.31f) << std::endl;
+    std::cerr << "XDR " << milecsa::assets::XDR.value_to_string(1.301f) << std::endl;
     std::cerr << "XDR " << milecsa::assets::XDR.value_to_string(0.1f) << std::endl;
     std::cerr << "XDR " << milecsa::assets::XDR.value_to_string(1.1f) << std::endl;
     std::cerr << "XDR " << milecsa::assets::XDR.value_to_string(1.01f) << std::endl;
