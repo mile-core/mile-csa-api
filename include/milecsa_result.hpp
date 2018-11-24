@@ -16,7 +16,8 @@ namespace milecsa {
         NOT_FOUND = 4,
         ALREADY_EXIST = 5,
         EXCEPTION = 6,
-        LAST = EXCEPTION
+        TIMEOUT = 7,
+        LAST = TIMEOUT
     } result;
 }
 
