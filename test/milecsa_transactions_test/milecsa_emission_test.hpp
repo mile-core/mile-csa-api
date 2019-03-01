@@ -15,6 +15,7 @@ struct Emission: public MIleTestTransaction {
     Emission():MIleTestTransaction("Emission"){}
 
     bool test() {
+#ifdef __MILE_SUPPORTS_EMISSION__
 
         uint256_t bid   = get_block_id();
 
@@ -38,7 +39,9 @@ struct Emission: public MIleTestTransaction {
 
         }
         return false;
-
+#else
+        return true;
+#endif
     }
 };
 

@@ -7,6 +7,8 @@
 
 #include "milecsa_transfer.hpp"
 
+#ifdef __MILE_SUPPORTS_EMISSION__
+
 namespace milecsa{
     namespace transaction{
 
@@ -75,5 +77,7 @@ namespace milecsa{
         typedef milecsa::transaction::Emission<nlohmann::json> JsonEmission;
     }
 }
+
+#endif
 
 #endif //MILECSA_MILECSA_EMISSION_HPP
